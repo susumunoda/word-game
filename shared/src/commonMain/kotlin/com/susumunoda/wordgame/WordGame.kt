@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.susumunoda.wordgame.ui.GameScreen
 import com.susumunoda.wordgame.ui.LandingScreen
+import com.susumunoda.wordgame.ui.SummaryScreen
 
 @Composable
 fun WordGame(viewModel: WordGameViewModel = viewModel()) {
@@ -29,7 +30,12 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
         }
 
         GameStatus.FINISHED -> {
-
+            SummaryScreen(
+                playerOneName = uiState.playerOneName,
+                playerOneScore = uiState.playerOneScore,
+                playerTwoName = uiState.playerTwoName,
+                playerTwoScore = uiState.playerTwoScore
+            )
         }
     }
 }
