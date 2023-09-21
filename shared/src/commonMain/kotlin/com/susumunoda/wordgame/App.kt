@@ -1,9 +1,11 @@
-import TileType.BL
-import TileType.DL
-import TileType.DW
-import TileType.ST
-import TileType.TL
-import TileType.TW
+package com.susumunoda.wordgame
+
+import com.susumunoda.wordgame.TileType.BL
+import com.susumunoda.wordgame.TileType.DL
+import com.susumunoda.wordgame.TileType.DW
+import com.susumunoda.wordgame.TileType.ST
+import com.susumunoda.wordgame.TileType.TL
+import com.susumunoda.wordgame.TileType.TW
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
