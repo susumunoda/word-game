@@ -16,24 +16,29 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.susumunoda.wordgame.data.ScoreData
+import com.susumunoda.wordgame.WordGameState
 import com.susumunoda.wordgame.ui.component.VerticalDivider
 
 private val SCORE_BOARD_HEIGHT = 60.dp
 
 @Composable
-fun ScoreBoard(
-    playerOneScoreData: ScoreData,
-    playerTwoScoreData: ScoreData,
-    nextMovePlayer: String?,
-    modifier: Modifier = Modifier
-) {
+fun ScoreBoard(state: WordGameState, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.height(SCORE_BOARD_HEIGHT).fillMaxWidth()
     ) {
-        PlayerScore(playerOneScoreData, nextMovePlayer, Modifier.weight(1f))
+        PlayerScore(
+            name = state.playerOneName,
+            score = state.playerOneScore,
+            isNextTurnPlayer = state.playerOneName == state.nextTurnPlayer,
+            modifier = Modifier.weight(1f)
+        )
         VerticalDivider(Modifier.fillMaxHeight())
-        PlayerScore(playerTwoScoreData, nextMovePlayer, Modifier.weight(1f))
+        PlayerScore(
+            name = state.playerTwoName,
+            score = state.playerTwoScore,
+            isNextTurnPlayer = state.playerTwoName == state.nextTurnPlayer,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -42,15 +47,16 @@ private val SCORE_FONT_SIZE = 24.sp
 
 @Composable
 private fun PlayerScore(
-    scoreData: ScoreData,
-    nextMovePlayer: String?,
+    name: String,
+    score: Int,
+    isNextTurnPlayer: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .then(
-                if (scoreData.name == nextMovePlayer) {
+                if (isNextTurnPlayer) {
                     Modifier.border(
                         width = SCORE_PADDING,
                         brush = SolidColor(Color.Green),
@@ -60,9 +66,9 @@ private fun PlayerScore(
             )
             .padding(SCORE_PADDING)
     ) {
-        Text(scoreData.name)
+        Text(name)
         Text(
-            text = scoreData.score.toString(),
+            text = score.toString(),
             fontSize = SCORE_FONT_SIZE,
             modifier = Modifier.align(Alignment.Center)
         )

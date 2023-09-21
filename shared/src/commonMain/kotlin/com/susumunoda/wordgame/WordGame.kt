@@ -3,24 +3,26 @@ package com.susumunoda.wordgame
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.susumunoda.wordgame.data.ScoreData
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import com.susumunoda.wordgame.ui.GameBoard
+import com.susumunoda.wordgame.ui.PlayerTiles
 import com.susumunoda.wordgame.ui.ScoreBoard
 
 
 @Composable
-fun WordGame() {
-    val playerOneScoreData = ScoreData("Bob", 10)
-    val playerTwoScoreData = ScoreData("Sally", 95)
+fun WordGame(viewModel: WordGameViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
 
     MaterialTheme {
         Column {
-            ScoreBoard(
-                playerOneScoreData = playerOneScoreData,
-                playerTwoScoreData = playerTwoScoreData,
-                nextMovePlayer = "Bob"
-            )
+            ScoreBoard(uiState)
             GameBoard()
+            PlayerTiles()
         }
     }
 }
+
+@Composable
+private fun viewModel(): WordGameViewModel = remember { WordGameViewModel() }
