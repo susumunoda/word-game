@@ -11,7 +11,7 @@ class WordGameViewModel {
         _uiState.value = WordGameState(
             playerOneName = playerOneName,
             playerTwoName = playerTwoName,
-            nextTurnPlayer = startPlayer,
+            currentTurnPlayer = startPlayer,
             gameStatus = GameStatus.STARTED
         )
     }

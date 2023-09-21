@@ -8,5 +8,5 @@ data class WordGameState(
     val playerTwoName: String = "",
     val playerTwoScore: Int = 0,
     val playerTwoTiles: List<Char> = emptyList(),
-    val nextTurnPlayer: String? = null
+    val currentTurnPlayer: String? = null
 )

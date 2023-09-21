@@ -29,14 +29,14 @@ fun ScoreBoard(state: WordGameState, modifier: Modifier = Modifier) {
         PlayerScore(
             name = state.playerOneName,
             score = state.playerOneScore,
-            isNextTurnPlayer = state.playerOneName == state.nextTurnPlayer,
+            isCurrentTurnPlayer = state.playerOneName == state.currentTurnPlayer,
             modifier = Modifier.weight(1f)
         )
         VerticalDivider(Modifier.fillMaxHeight())
         PlayerScore(
             name = state.playerTwoName,
             score = state.playerTwoScore,
-            isNextTurnPlayer = state.playerTwoName == state.nextTurnPlayer,
+            isCurrentTurnPlayer = state.playerTwoName == state.currentTurnPlayer,
             modifier = Modifier.weight(1f)
         )
     }
@@ -49,14 +49,14 @@ private val SCORE_FONT_SIZE = 24.sp
 private fun PlayerScore(
     name: String,
     score: Int,
-    isNextTurnPlayer: Boolean,
+    isCurrentTurnPlayer: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .then(
-                if (isNextTurnPlayer) {
+                if (isCurrentTurnPlayer) {
                     Modifier.border(
                         width = SCORE_PADDING,
                         brush = SolidColor(Color.Green),
