@@ -12,7 +12,11 @@ fun WordGame() {
 
     MaterialTheme {
         Column {
-            ScoreBoard(playerOneScoreData, playerTwoScoreData)
+            ScoreBoard(
+                playerOneScoreData = playerOneScoreData,
+                playerTwoScoreData = playerTwoScoreData,
+                nextMovePlayer = "Bob"
+            )
             GameBoard()
         }
     }

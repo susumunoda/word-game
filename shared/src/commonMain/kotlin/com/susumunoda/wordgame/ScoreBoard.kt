@@ -1,5 +1,6 @@
 package com.susumunoda.wordgame
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.susumunoda.wordgame.components.VerticalDivider
@@ -21,14 +24,15 @@ private val SCORE_BOARD_HEIGHT = 60.dp
 fun ScoreBoard(
     playerOneScoreData: ScoreData,
     playerTwoScoreData: ScoreData,
+    nextMovePlayer: String?,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.height(SCORE_BOARD_HEIGHT).fillMaxWidth()
     ) {
-        PlayerScore(playerOneScoreData, Modifier.weight(1f))
+        PlayerScore(playerOneScoreData, nextMovePlayer, Modifier.weight(1f))
         VerticalDivider(Modifier.fillMaxHeight())
-        PlayerScore(playerTwoScoreData, Modifier.weight(1f))
+        PlayerScore(playerTwoScoreData, nextMovePlayer, Modifier.weight(1f))
     }
 }
 
@@ -36,8 +40,25 @@ private val SCORE_PADDING = 4.dp
 private val SCORE_FONT_SIZE = 24.sp
 
 @Composable
-private fun PlayerScore(scoreData: ScoreData, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxHeight().padding(SCORE_PADDING)) {
+private fun PlayerScore(
+    scoreData: ScoreData,
+    nextMovePlayer: String?,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .then(
+                if (scoreData.name == nextMovePlayer) {
+                    Modifier.border(
+                        width = SCORE_PADDING,
+                        brush = SolidColor(Color.Green),
+                        shape = RectangleShape
+                    )
+                } else Modifier
+            )
+            .padding(SCORE_PADDING)
+    ) {
         Text(scoreData.name)
         Text(
             text = scoreData.score.toString(),
