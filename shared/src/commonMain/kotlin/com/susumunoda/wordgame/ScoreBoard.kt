@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.susumunoda.wordgame.components.VerticalDivider
+import com.susumunoda.wordgame.ui.components.VerticalDivider
 
 private val SCORE_BOARD_HEIGHT = 60.dp
 
