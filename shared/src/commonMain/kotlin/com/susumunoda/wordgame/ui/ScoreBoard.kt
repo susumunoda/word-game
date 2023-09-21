@@ -1,4 +1,4 @@
-package com.susumunoda.wordgame
+package com.susumunoda.wordgame.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.susumunoda.wordgame.data.ScoreData
 import com.susumunoda.wordgame.ui.component.VerticalDivider
 
 private val SCORE_BOARD_HEIGHT = 60.dp

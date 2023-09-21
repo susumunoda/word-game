@@ -3,6 +3,9 @@ package com.susumunoda.wordgame
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.susumunoda.wordgame.data.ScoreData
+import com.susumunoda.wordgame.ui.GameBoard
+import com.susumunoda.wordgame.ui.ScoreBoard
 
 
 @Composable

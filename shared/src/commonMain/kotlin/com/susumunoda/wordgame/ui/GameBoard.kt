@@ -1,4 +1,4 @@
-package com.susumunoda.wordgame
+package com.susumunoda.wordgame.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
