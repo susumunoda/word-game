@@ -8,4 +8,6 @@ data class WordGameState(
     val playerTwoScore: Int = 0,
     val playerTwoTiles: List<Char> = emptyList(),
     val nextTurnPlayer: String? = null
-)
+) {
+    val isInitialized = playerOneName.isNotBlank() && playerTwoName.isNotBlank()
+}
