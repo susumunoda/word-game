@@ -1,6 +1,7 @@
 package com.susumunoda.wordgame
 
 data class WordGameState(
+    val gameStatus: GameStatus = GameStatus.NOT_STARTED,
     val playerOneName: String = "",
     val playerOneScore: Int = 0,
     val playerOneTiles: List<Char> = emptyList(),
@@ -8,6 +9,4 @@ data class WordGameState(
     val playerTwoScore: Int = 0,
     val playerTwoTiles: List<Char> = emptyList(),
     val nextTurnPlayer: String? = null
-) {
-    val isInitialized = playerOneName.isNotBlank() && playerTwoName.isNotBlank()
-}
+)

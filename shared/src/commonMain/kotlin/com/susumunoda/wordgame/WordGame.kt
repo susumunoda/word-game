@@ -11,10 +11,26 @@ import com.susumunoda.wordgame.ui.LandingScreen
 fun WordGame(viewModel: WordGameViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (!uiState.isInitialized) {
-        LandingScreen(viewModel::setPlayerNames)
-    } else {
-        GameScreen(uiState)
+    when (uiState.gameStatus) {
+        GameStatus.NOT_STARTED -> {
+            LandingScreen(
+                onSubmitPlayerNames = { playerOneName, playerTwoName ->
+                    viewModel.startNewGame(
+                        playerOneName = playerOneName,
+                        playerTwoName = playerTwoName,
+                        startPlayer = playerOneName
+                    )
+                }
+            )
+        }
+
+        GameStatus.STARTED -> {
+            GameScreen(uiState)
+        }
+
+        GameStatus.FINISHED -> {
+
+        }
     }
 }
 
