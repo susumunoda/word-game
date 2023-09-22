@@ -1,6 +1,6 @@
 package com.susumunoda.wordgame.ui
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.susumunoda.wordgame.WordGameState
@@ -55,16 +53,12 @@ private fun PlayerScore(
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .then(
-                if (isCurrentTurnPlayer) {
-                    Modifier.border(
-                        width = SCORE_PADDING,
-                        brush = SolidColor(Color.Green),
-                        shape = RectangleShape
-                    )
-                } else Modifier
-            )
+            // Originally, the border was implemented with a then() that conditionally returned
+            // Modifier.border(). However, doing it the current way is ideal as we get both padding
+            // and border behavior by changing just a single value.
+            .then(if (isCurrentTurnPlayer) Modifier.background(Color.Green) else Modifier)
             .padding(SCORE_PADDING)
+            .background(Color.White)
     ) {
         Text(name)
         Text(
