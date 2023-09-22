@@ -26,7 +26,7 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
         }
 
         GameStatus.STARTED -> {
-            GameScreen(uiState)
+            GameScreen(viewModel, uiState)
         }
 
         GameStatus.FINISHED -> {

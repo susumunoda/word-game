@@ -7,4 +7,6 @@ data class WordGameState(
     val playerOneData: PlayerData = PlayerData(),
     val playerTwoData: PlayerData = PlayerData(),
     val currentTurnPlayer: String = "",
+    val availableTiles: List<Tile> = emptyList(),
+    val showUserTiles: Boolean = false
 )
