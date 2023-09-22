@@ -22,12 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.susumunoda.wordgame.TileType.BL
-import com.susumunoda.wordgame.TileType.DL
-import com.susumunoda.wordgame.TileType.DW
-import com.susumunoda.wordgame.TileType.ST
-import com.susumunoda.wordgame.TileType.TL
-import com.susumunoda.wordgame.TileType.TW
+import com.susumunoda.wordgame.GridCell.BL
+import com.susumunoda.wordgame.GridCell.DL
+import com.susumunoda.wordgame.GridCell.DW
+import com.susumunoda.wordgame.GridCell.ST
+import com.susumunoda.wordgame.GridCell.TL
+import com.susumunoda.wordgame.GridCell.TW
 
 private val TILE_SPACING = 2.dp
 private val TILE_FONT_SIZE = 8.sp
