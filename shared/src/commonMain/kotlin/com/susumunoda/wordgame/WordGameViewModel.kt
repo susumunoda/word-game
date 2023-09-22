@@ -1,5 +1,6 @@
 package com.susumunoda.wordgame
 
+import com.susumunoda.wordgame.data.PlayerData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -9,8 +10,12 @@ class WordGameViewModel {
 
     fun startNewGame(playerOneName: String, playerTwoName: String, startPlayer: String) {
         _uiState.value = WordGameState(
-            playerOneName = playerOneName,
-            playerTwoName = playerTwoName,
+            playerOneData = PlayerData(
+                name = playerOneName,
+            ),
+            playerTwoData = PlayerData(
+                name = playerTwoName,
+            ),
             currentTurnPlayer = startPlayer,
             gameStatus = GameStatus.STARTED
         )

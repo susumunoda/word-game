@@ -31,10 +31,8 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
 
         GameStatus.FINISHED -> {
             SummaryScreen(
-                playerOneName = uiState.playerOneName,
-                playerOneScore = uiState.playerOneScore,
-                playerTwoName = uiState.playerTwoName,
-                playerTwoScore = uiState.playerTwoScore
+                playerOneData = uiState.playerOneData,
+                playerTwoData = uiState.playerTwoData
             )
         }
     }

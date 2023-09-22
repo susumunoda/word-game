@@ -7,7 +7,11 @@ import com.susumunoda.wordgame.WordGameState
 @Composable
 fun GameScreen(state: WordGameState) {
     Column {
-        ScoreBoard(state)
+        ScoreBoard(
+            playerOneData = state.playerOneData,
+            playerTwoData = state.playerTwoData,
+            currentTurnPlayer = state.currentTurnPlayer
+        )
         GameBoard()
         PlayerTiles()
     }

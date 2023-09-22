@@ -14,27 +14,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.susumunoda.wordgame.WordGameState
+import com.susumunoda.wordgame.data.PlayerData
 import com.susumunoda.wordgame.ui.component.VerticalDivider
 
 private val SCORE_BOARD_HEIGHT = 60.dp
 
 @Composable
-fun ScoreBoard(state: WordGameState, modifier: Modifier = Modifier) {
+fun ScoreBoard(
+    playerOneData: PlayerData,
+    playerTwoData: PlayerData,
+    currentTurnPlayer: String,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.height(SCORE_BOARD_HEIGHT).fillMaxWidth()
     ) {
         PlayerScore(
-            name = state.playerOneName,
-            score = state.playerOneScore,
-            isCurrentTurnPlayer = state.playerOneName == state.currentTurnPlayer,
+            name = playerOneData.name,
+            score = playerOneData.score,
+            isCurrentTurnPlayer = playerOneData.name == currentTurnPlayer,
             modifier = Modifier.weight(1f)
         )
         VerticalDivider(Modifier.fillMaxHeight())
         PlayerScore(
-            name = state.playerTwoName,
-            score = state.playerTwoScore,
-            isCurrentTurnPlayer = state.playerTwoName == state.currentTurnPlayer,
+            name = playerTwoData.name,
+            score = playerTwoData.score,
+            isCurrentTurnPlayer = playerTwoData.name == currentTurnPlayer,
             modifier = Modifier.weight(1f)
         )
     }

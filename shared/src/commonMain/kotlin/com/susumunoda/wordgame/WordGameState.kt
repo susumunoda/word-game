@@ -1,12 +1,10 @@
 package com.susumunoda.wordgame
 
+import com.susumunoda.wordgame.data.PlayerData
+
 data class WordGameState(
     val gameStatus: GameStatus = GameStatus.NOT_STARTED,
-    val playerOneName: String = "",
-    val playerOneScore: Int = 0,
-    val playerOneTiles: List<Char> = emptyList(),
-    val playerTwoName: String = "",
-    val playerTwoScore: Int = 0,
-    val playerTwoTiles: List<Char> = emptyList(),
-    val currentTurnPlayer: String? = null
+    val playerOneData: PlayerData = PlayerData(),
+    val playerTwoData: PlayerData = PlayerData(),
+    val currentTurnPlayer: String = "",
 )
