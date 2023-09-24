@@ -22,34 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.susumunoda.wordgame.GridCell.BL
-import com.susumunoda.wordgame.GridCell.DL
-import com.susumunoda.wordgame.GridCell.DW
-import com.susumunoda.wordgame.GridCell.ST
-import com.susumunoda.wordgame.GridCell.TL
-import com.susumunoda.wordgame.GridCell.TW
+import com.susumunoda.wordgame.CellType
+import com.susumunoda.wordgame.GRID
 
 private val TILE_SPACING = 2.dp
 private val TILE_FONT_SIZE = 8.sp
 private val TILE_ROUNDING = 4.dp
-
-private val GRID = arrayOf(
-    arrayOf(TW, BL, BL, DL, BL, BL, BL, TW, BL, BL, BL, DL, BL, BL, TW), ////////
-    arrayOf(BL, DW, BL, BL, BL, TL, BL, BL, BL, TL, BL, BL, BL, DW, BL), ///////
-    arrayOf(BL, BL, DW, BL, BL, BL, DL, BL, DL, BL, BL, BL, DW, BL, BL), //////
-    arrayOf(DL, BL, BL, DW, BL, BL, BL, DL, BL, BL, BL, DW, BL, BL, DL), /////
-    arrayOf(BL, BL, BL, BL, DW, BL, BL, BL, BL, BL, DW, BL, BL, BL, BL), ////
-    arrayOf(BL, TL, BL, BL, BL, TL, BL, BL, BL, TL, BL, BL, BL, TL, BL), ///
-    arrayOf(BL, BL, DL, BL, BL, BL, DL, BL, DL, BL, BL, BL, DL, BL, BL), //
-    arrayOf(TW, BL, BL, DL, BL, BL, BL, ST, BL, BL, BL, DL, BL, BL, TW),
-    arrayOf(BL, BL, DL, BL, BL, BL, DL, BL, DL, BL, BL, BL, DL, BL, BL), //
-    arrayOf(BL, TL, BL, BL, BL, TL, BL, BL, BL, TL, BL, BL, BL, TL, BL), ///
-    arrayOf(BL, BL, BL, BL, DW, BL, BL, BL, BL, BL, DW, BL, BL, BL, BL), ////
-    arrayOf(DL, BL, BL, DW, BL, BL, BL, DL, BL, BL, BL, DW, BL, BL, DL), /////
-    arrayOf(BL, BL, DW, BL, BL, BL, DL, BL, DL, BL, BL, BL, DW, BL, BL), //////
-    arrayOf(BL, DW, BL, BL, BL, TL, BL, BL, BL, TL, BL, BL, BL, DW, BL), ///////
-    arrayOf(TW, BL, BL, DL, BL, BL, BL, TW, BL, BL, BL, DL, BL, BL, TW), ////////
-)
 
 @Composable
 internal fun GameBoard(modifier: Modifier = Modifier) {
@@ -75,7 +53,7 @@ internal fun GameBoard(modifier: Modifier = Modifier) {
                                     .background(tileType.color),
                                 contentAlignment = Alignment.Center
                             ) {
-                                if (tileType == ST) {
+                                if (tileType == CellType.ST) {
                                     Icon(Icons.Filled.Star, null, tint = Color.White)
                                 } else {
                                     Text(
