@@ -21,11 +21,7 @@ fun GameScreen(viewModel: WordGameViewModel, state: WordGameState) {
         )
         GameBoard(Modifier.padding(HORIZONTAL_PADDING))
         TilesSection(
-            tiles = if (state.currentTurnPlayer == state.playerOneData.name) {
-                state.playerOneData.tiles
-            } else {
-                state.playerTwoData.tiles
-            },
+            tiles = state.currentTurnPlayerTiles,
             showTiles = state.showUserTiles,
             toggleShowTiles = viewModel::setShowUserTiles,
             modifier = Modifier.padding(HORIZONTAL_PADDING)
