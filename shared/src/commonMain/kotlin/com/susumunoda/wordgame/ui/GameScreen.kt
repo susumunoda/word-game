@@ -9,22 +9,22 @@ import androidx.compose.ui.unit.dp
 import com.susumunoda.wordgame.WordGameState
 import com.susumunoda.wordgame.WordGameViewModel
 
-private val HORIZONTAL_PADDING = PaddingValues(horizontal = 4.dp)
+private val HORIZONTAL_PADDING = PaddingValues(horizontal = 16.dp)
 
 @Composable
-fun GameScreen(viewModel: WordGameViewModel, state: WordGameState) {
-    Column {
+fun GameScreen(viewModel: WordGameViewModel, state: WordGameState, modifier: Modifier = Modifier) {
+    Column(modifier.padding(HORIZONTAL_PADDING)) {
         ScoreBoard(
             playerOneData = state.playerOneData,
             playerTwoData = state.playerTwoData,
             currentTurnPlayer = state.currentTurnPlayer
         )
-        GameBoard(Modifier.padding(HORIZONTAL_PADDING))
+        GameBoard()
         TilesSection(
             tiles = state.currentTurnPlayerTiles,
             showTiles = state.showUserTiles,
-            toggleShowTiles = viewModel::setShowUserTiles,
-            modifier = Modifier.padding(HORIZONTAL_PADDING)
+            toggleShowTiles = viewModel::setShowUserTiles
         )
+        ControlsSection()
     }
 }

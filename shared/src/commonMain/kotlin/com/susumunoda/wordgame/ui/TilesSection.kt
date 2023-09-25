@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.susumunoda.wordgame.Tile
 
+private val TILES_ROW_BOTTOM_PADDING = 8.dp
+
 @Composable
 fun TilesSection(
     tiles: List<Tile>,
@@ -41,7 +43,10 @@ fun TilesSection(
             )
         }
         AnimatedVisibility(visible = showTiles) {
-            Tiles(tiles = tiles)
+            Tiles(
+                tiles = tiles,
+                modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
+            )
         }
     }
 }
