@@ -27,7 +27,7 @@ class WordGameViewModel {
             ),
             currentTurnPlayer = startPlayer,
             gameStatus = GameStatus.STARTED,
-            availableTiles = initialTiles
+            remainingTiles = initialTiles
         )
     }
 
@@ -35,11 +35,11 @@ class WordGameViewModel {
         _uiState.update { it.copy(showUserTiles = showUserTiles) }
     }
 
-    private fun getUserTiles(availableTiles: MutableList<Tile>): List<Tile> {
+    private fun getUserTiles(remainingTiles: MutableList<Tile>): List<Tile> {
         val userTiles = mutableListOf<Tile>()
-        while (userTiles.size < TILES_PER_USER && availableTiles.isNotEmpty()) {
-            val randomTile = availableTiles.random()
-            availableTiles.remove(randomTile)
+        while (userTiles.size < TILES_PER_USER && remainingTiles.isNotEmpty()) {
+            val randomTile = remainingTiles.random()
+            remainingTiles.remove(randomTile)
             userTiles.add(randomTile)
         }
         return userTiles

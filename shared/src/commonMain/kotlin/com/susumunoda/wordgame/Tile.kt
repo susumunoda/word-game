@@ -27,5 +27,7 @@ enum class Tile(val points: Int, val distribution: Int) {
     X(points = 8, distribution = 1),
     Y(points = 4, distribution = 2),
     Z(points = 10, distribution = 1),
-    BLANK(points = 0, distribution = 2)
+    BLANK(points = 0, distribution = 2);
+
+    val displayName: String get() = if (this == BLANK) "_" else name
 }

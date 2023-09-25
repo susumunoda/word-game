@@ -26,5 +26,9 @@ fun GameScreen(viewModel: WordGameViewModel, state: WordGameState, modifier: Mod
             toggleShowTiles = viewModel::setShowUserTiles
         )
         ControlsSection()
+        RemainingTilesSection(
+            remainingTileCounts = state.remainingTileCounts,
+            remainingTileTypes = state.remainingTileTypes
+        )
     }
 }
