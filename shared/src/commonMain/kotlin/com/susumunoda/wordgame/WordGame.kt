@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.susumunoda.wordgame.ui.GameScreen
-import com.susumunoda.wordgame.ui.LandingScreen
-import com.susumunoda.wordgame.ui.SummaryScreen
+import com.susumunoda.wordgame.ui.screen.game.GameScreen
+import com.susumunoda.wordgame.ui.screen.landing.LandingScreen
+import com.susumunoda.wordgame.ui.screen.summary.SummaryScreen
 
 @Composable
 fun WordGame(viewModel: WordGameViewModel = viewModel()) {

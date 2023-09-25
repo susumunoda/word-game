@@ -1,4 +1,4 @@
-package com.susumunoda.wordgame.ui
+package com.susumunoda.wordgame.ui.screen.game
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
