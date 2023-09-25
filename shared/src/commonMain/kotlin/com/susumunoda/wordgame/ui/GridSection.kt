@@ -30,7 +30,7 @@ private val TILE_FONT_SIZE = 8.sp
 private val TILE_ROUNDING = 4.dp
 
 @Composable
-internal fun GameBoard(modifier: Modifier = Modifier) {
+internal fun GridSection(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier) {
         val tileSize = (maxWidth - (TILE_SPACING * (GRID.size - 1))) / GRID.size
 

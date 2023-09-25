@@ -14,12 +14,12 @@ private val HORIZONTAL_PADDING = PaddingValues(horizontal = 16.dp)
 @Composable
 fun GameScreen(viewModel: WordGameViewModel, state: WordGameState, modifier: Modifier = Modifier) {
     Column(modifier.padding(HORIZONTAL_PADDING)) {
-        ScoreBoard(
+        ScoresSection(
             playerOneData = state.playerOneData,
             playerTwoData = state.playerTwoData,
             currentTurnPlayer = state.currentTurnPlayer
         )
-        GameBoard()
+        GridSection()
         TilesSection(
             tiles = state.currentTurnPlayerTiles,
             showTiles = state.showUserTiles,

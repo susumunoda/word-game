@@ -20,7 +20,7 @@ import com.susumunoda.wordgame.ui.component.VerticalDivider
 private val SCORE_BOARD_HEIGHT = 60.dp
 
 @Composable
-fun ScoreBoard(
+fun ScoresSection(
     playerOneData: PlayerData,
     playerTwoData: PlayerData,
     currentTurnPlayer: String,
