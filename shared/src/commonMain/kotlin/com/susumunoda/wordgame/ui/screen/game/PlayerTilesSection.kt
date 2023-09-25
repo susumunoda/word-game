@@ -24,7 +24,7 @@ import com.susumunoda.wordgame.Tile
 private val TILES_ROW_BOTTOM_PADDING = 8.dp
 
 @Composable
-fun TilesSection(
+fun PlayerTilesSection(
     tiles: List<Tile>,
     showTiles: Boolean,
     toggleShowTiles: (Boolean) -> Unit,
@@ -43,7 +43,7 @@ fun TilesSection(
             )
         }
         AnimatedVisibility(visible = showTiles) {
-            Tiles(
+            PlayerTiles(
                 tiles = tiles,
                 modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
             )
@@ -57,7 +57,7 @@ private val TILE_POINTS_FONT_SIZE = 16.sp
 private val TILE_POINTS_PADDING = 2.dp
 
 @Composable
-private fun Tiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
+private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier) {
         val tileSize = (maxWidth - (TILE_SPACING * (tiles.size - 1))) / tiles.size
         Row(
