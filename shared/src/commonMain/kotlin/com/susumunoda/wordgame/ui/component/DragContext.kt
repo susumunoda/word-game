@@ -94,7 +94,26 @@ class DragContext<T> {
                 }
                 .offset {
                     val dragOffset = dragOffsetState.value
-                    IntOffset(dragOffset.x.roundToInt(), dragOffset.y.roundToInt())
+                    if (isDraggingState.value) {
+                        IntOffset(
+                            x = dragOffset.x.roundToInt(),
+                            y = dragOffset.y.roundToInt()
+                        )
+                    } else {
+                        // When a drag event happens, any scaling that has been applied is
+                        // automatically accounted for in the offset provided to the `onDrag`
+                        // callback of `detectDragGestures`.
+                        // For instance, if a 100px * 100px box has a scale factor of 0.5 applied
+                        // (resulting in a 50px * 50px box) and is dragged 250px on the screen,
+                        // the `onDrag` callback actually receives an offset of 500px to account
+                        // for the scaling.
+                        // Therefore, we must account for scaling here so that drag targets remain
+                        // at the correct location on the screen when released.
+                        IntOffset(
+                            x = (dragOffset.x * dragOptions.onDragScaleX).roundToInt(),
+                            y = (dragOffset.y * dragOptions.onDragScaleY).roundToInt()
+                        )
+                    }
                 }
                 .onGloballyPositioned { coordinates ->
                     // Necessary to check if actually being dragged by the user and not moving due
@@ -123,15 +142,13 @@ class DragContext<T> {
                             isDraggingState.value = true
                         },
                         onDragEnd = {
+                            isDraggingState.value = false
                             if (dragTargetState.dropTargets.isEmpty()) {
-                                // Return to original un-dragged position and state
-                                dragTargetState.resetState()
+                                // Return to original position
+                                dragOffsetState.value = Offset.Zero
                             } else {
                                 // It is the responsibility of the onDrop callback to update state
                                 // in such a way that this DropTarget leaves the composition (if desired).
-                                // Note that isDraggingState is not set to false here, because we
-                                // don't want the drag target to suddenly render in a non-dragged
-                                // state (e.g. if it had been shrunk during drag, to re-expand).
                                 dragTargetState.dropTargets.forEach { dropTarget ->
                                     dropTarget.onDrop(data)
                                 }
