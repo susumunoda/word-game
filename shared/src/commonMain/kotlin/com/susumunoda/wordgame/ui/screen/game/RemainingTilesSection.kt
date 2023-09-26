@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.susumunoda.wordgame.Tile
 
-private const val TILE_COUNTS_PER_COLUMN = 7
+private const val TILE_COUNTS_PER_COLUMN = 4
 
 @Composable
 fun RemainingTilesSection(
