@@ -26,6 +26,7 @@ kotlin {
                 implementation(compose.material3)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation("co.touchlab:kermit:2.0.0")
             }
         }
         val androidMain by getting {

@@ -21,6 +21,7 @@ private val ICON_SIZE = 16.dp
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ControlsSection(modifier: Modifier = Modifier) {
+    val dragContext = LocalTileDragContext.current
     Column(modifier = modifier) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(BUTTON_SPACING),
@@ -42,7 +43,7 @@ fun ControlsSection(modifier: Modifier = Modifier) {
                 Text("Submit")
             }
             Button(
-                onClick = { },
+                onClick = { dragContext.resetDragTargets() },
             ) {
                 Icon(
                     painter = painterResource("undo_icon.xml"),

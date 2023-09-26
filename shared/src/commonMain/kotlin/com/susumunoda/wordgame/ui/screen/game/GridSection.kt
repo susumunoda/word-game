@@ -1,6 +1,7 @@
 package com.susumunoda.wordgame.ui.screen.game
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,10 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.touchlab.kermit.Logger
 import com.susumunoda.wordgame.CellType
 import com.susumunoda.wordgame.GRID
+import com.susumunoda.wordgame.Tile
+import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILE_SPACING = 2.dp
 private val TILE_FONT_SIZE = 8.sp
@@ -32,7 +37,7 @@ private val TILE_ROUNDING = 4.dp
 @Composable
 internal fun GridSection(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier) {
-        val tileSize = (maxWidth - (TILE_SPACING * (GRID.size - 1))) / GRID.size
+        val cellSize = (maxWidth - (TILE_SPACING * (GRID.size - 1))) / GRID.size
 
         // Assuming we are in portrait mode, the board is a square that is width * width in size
         Box(Modifier.size(maxWidth)) {
@@ -40,31 +45,65 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                GRID.forEach { row ->
+                GRID.forEachIndexed { i, row ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        row.forEach { tileType ->
-                            Box(
-                                modifier = Modifier
-                                    .size(tileSize)
-                                    .clip(RoundedCornerShape(TILE_ROUNDING))
-                                    .background(tileType.color),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (tileType == CellType.ST) {
-                                    Icon(Icons.Filled.Star, null, tint = Color.White)
-                                } else {
-                                    Text(
-                                        tileType.name,
-                                        fontSize = TILE_FONT_SIZE,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                        row.forEachIndexed { j, cellType ->
+                            EmptyCell(
+                                cellType = cellType,
+                                cellSize = cellSize,
+                                onTilePlayed = { tile ->
+                                    if (tile != null) {
+                                        Logger.i(
+                                            tag = "GridSection",
+                                            messageString = "Played ${tile.name} at [$i,$j]"
+                                        )
+                                    }
                                 }
-                            }
+                            )
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+private val HOVERED_BORDER_WIDTH = 2.dp
+
+@Composable
+private fun EmptyCell(
+    cellType: CellType,
+    cellSize: Dp,
+    onTilePlayed: (Tile?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    withDragContext(LocalTileDragContext.current) {
+        DropTarget(onDrop = onTilePlayed) { isHovered ->
+            Box(
+                modifier = modifier
+                    .size(cellSize)
+                    .clip(RoundedCornerShape(TILE_ROUNDING))
+                    .background(cellType.color)
+                    .then(
+                        if (isHovered) {
+                            Modifier.border(HOVERED_BORDER_WIDTH, Color.Red)
+                        } else {
+                            Modifier
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                if (cellType == CellType.ST) {
+                    Icon(Icons.Filled.Star, null, tint = Color.White)
+                } else {
+                    Text(
+                        cellType.name,
+                        fontSize = TILE_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

@@ -17,9 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.susumunoda.wordgame.Tile
+import com.susumunoda.wordgame.ui.component.DragOptions
+import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILES_ROW_BOTTOM_PADDING = 8.dp
 
@@ -52,9 +55,6 @@ fun PlayerTilesSection(
 }
 
 private val TILE_SPACING = 8.dp
-private val TILE_LETTER_FONT_SIZE = 24.sp
-private val TILE_POINTS_FONT_SIZE = 16.sp
-private val TILE_POINTS_PADDING = 2.dp
 
 @Composable
 private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
@@ -65,27 +65,50 @@ private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             tiles.forEach { tile ->
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(tileSize)
-                        .background(Color.Yellow)
-                ) {
-                    if (tile != Tile.BLANK) {
-                        Text(
-                            text = tile.name,
-                            fontSize = TILE_LETTER_FONT_SIZE,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = tile.points.toString(),
-                            fontSize = TILE_POINTS_FONT_SIZE,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(TILE_POINTS_PADDING)
-                        )
-                    }
+                Tile(
+                    tile = tile,
+                    tileSize = tileSize
+                )
+            }
+        }
+    }
+}
+
+private const val TILE_DRAG_SCALE_FACTOR = 0.5f
+private val TILE_LETTER_FONT_SIZE = 24.sp
+private val TILE_POINTS_FONT_SIZE = 16.sp
+private val TILE_POINTS_PADDING = 2.dp
+
+@Composable
+private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
+    withDragContext(LocalTileDragContext.current) {
+        DragTarget(
+            data = tile,
+            dragOptions = DragOptions(
+                onDragScaleX = TILE_DRAG_SCALE_FACTOR,
+                onDragScaleY = TILE_DRAG_SCALE_FACTOR
+            )
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .size(tileSize)
+                    .background(Color.Yellow)
+            ) {
+                if (tile != Tile.BLANK) {
+                    Text(
+                        text = tile.name,
+                        fontSize = TILE_LETTER_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = tile.points.toString(),
+                        fontSize = TILE_POINTS_FONT_SIZE,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(TILE_POINTS_PADDING)
+                    )
                 }
             }
         }
