@@ -33,6 +33,7 @@ fun PlayerTilesSection(
     toggleShowTiles: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val dragContext = LocalTileDragContext.current
     Column(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -42,7 +43,16 @@ fun PlayerTilesSection(
             Text("Show tiles")
             Switch(
                 checked = showTiles,
-                onCheckedChange = toggleShowTiles
+                onCheckedChange = { checked ->
+                    toggleShowTiles(checked)
+                    if (!checked) {
+                        // This is not strictly necessary as DragContext state will automatically
+                        // get cleaned up after the tiles leave the composition, but there is a
+                        // slight delay until the state is cleared (e.g. for any hovered cells to
+                        // go back to an unhovered state). Manually clear state for better UX.
+                        dragContext.resetDragTargets()
+                    }
+                }
             )
         }
         AnimatedVisibility(visible = showTiles) {
