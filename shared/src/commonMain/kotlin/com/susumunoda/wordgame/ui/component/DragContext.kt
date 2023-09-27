@@ -139,12 +139,12 @@ class DragContext<T> {
                     // Necessary to check if actually being dragged by the user and not moving due
                     // to an animating composable (e.g. AnimatedVisibility)
                     if (dragStatusState.value == DragStatus.DRAGGING) {
-                        val globalOffset = coordinates.localToWindow(Offset.Zero)
+                        val dragTargetRect = coordinates.boundsInWindow()
                         // M:N relationship between drag and drop targets; i.e. one drag target can get
                         // dropped into one or more drop targets, and one drop target can have one or
                         // more drag targets dropped into it.
                         dropTargetStates.forEach { dropTargetState ->
-                            if (dropTargetState.globalRect.contains(globalOffset)) {
+                            if (dropTargetState.globalRect.contains(dragTargetRect.center)) {
                                 dragTargetState.dropTargets.add(dropTargetState)
                                 dropTargetState.dragTargets.add(dragTargetState)
                             } else {
