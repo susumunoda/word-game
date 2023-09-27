@@ -140,6 +140,14 @@ class DragContext<T> {
                     detectDragGestures(
                         onDragStart = {
                             isDraggingState.value = true
+                            // Provide an opportunity for drop targets to respond to drag targets
+                            // being dragged back out (e.g. update state to no longer account for
+                            // this drag target's data)
+                            // Future: Consider what it would mean for incoming data to change after the
+                            // initial drop. How to inform drop targets of re-drag events in this case?
+                            dragTargetState.dropTargets.forEach { dropTarget ->
+                                dropTarget.onDrag(data)
+                            }
                         },
                         onDragEnd = {
                             isDraggingState.value = false
@@ -171,6 +179,7 @@ class DragContext<T> {
     private inner class DropTargetState(
         var globalRect: Rect = Rect.Zero,
         val onDrop: (T?) -> Unit = {},
+        val onDrag: (T?) -> Unit = {},
         val dragTargets: MutableSet<DragTargetState> = mutableSetOf(),
         val isHovered: MutableState<Boolean> = mutableStateOf(false)
     ) {
@@ -198,13 +207,17 @@ class DragContext<T> {
     @Composable
     private fun rememberDropTargetState(
         onDrop: (T?) -> Unit,
+        onDrag: (T?) -> Unit,
         content: @Composable (Boolean) -> Unit
     ): DropTargetState {
-        val dropTargetState = remember(onDrop, content) {
+        val dropTargetState = remember(onDrop, onDrag, content) {
             @Suppress("UNCHECKED_CAST")
-            DropTargetState(onDrop = onDrop as ((Any?) -> Unit))
+            DropTargetState(
+                onDrop = onDrop as ((Any?) -> Unit),
+                onDrag = onDrag as ((Any?) -> Unit)
+            )
         }
-        DisposableEffect(onDrop, content) {
+        DisposableEffect(onDrop, onDrag, content) {
             dropTargetStates.add(dropTargetState)
             onDispose {
                 dropTargetState.onDispose()
@@ -217,9 +230,11 @@ class DragContext<T> {
     @Composable
     fun DropTarget(
         onDrop: (T?) -> Unit,
+        // Not required because there may be no need to respond to re-drag events
+        onDrag: (T?) -> Unit = {},
         content: @Composable (Boolean) -> Unit
     ) {
-        val dropTargetState = rememberDropTargetState(onDrop, content)
+        val dropTargetState = rememberDropTargetState(onDrop, onDrag, content)
         Box(
             modifier = Modifier.onGloballyPositioned {
                 dropTargetState.globalRect = it.boundsInWindow()

@@ -54,11 +54,19 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                             EmptyCell(
                                 cellType = cellType,
                                 cellSize = cellSize,
-                                onTilePlayed = { tile ->
+                                onTilePlaced = { tile ->
                                     if (tile != null) {
                                         Logger.i(
                                             tag = "GridSection",
-                                            messageString = "Played ${tile.name} at [$i,$j]"
+                                            messageString = "Placed ${tile.name} at [$i,$j]"
+                                        )
+                                    }
+                                },
+                                onTileRemoved = { tile ->
+                                    if (tile != null) {
+                                        Logger.i(
+                                            tag = "GridSection",
+                                            messageString = "Removed ${tile.name} from [$i,$j]"
                                         )
                                     }
                                 }
@@ -77,11 +85,15 @@ private val HOVERED_BORDER_WIDTH = 2.dp
 private fun EmptyCell(
     cellType: CellType,
     cellSize: Dp,
-    onTilePlayed: (Tile?) -> Unit,
+    onTilePlaced: (Tile?) -> Unit,
+    onTileRemoved: (Tile?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     withDragContext(LocalTileDragContext.current) {
-        DropTarget(onDrop = onTilePlayed) { isHovered ->
+        DropTarget(
+            onDrop = onTilePlaced,
+            onDrag = onTileRemoved
+        ) { isHovered ->
             Box(
                 modifier = modifier
                     .size(cellSize)
