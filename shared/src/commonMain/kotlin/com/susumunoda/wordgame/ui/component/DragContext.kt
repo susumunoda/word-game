@@ -166,12 +166,11 @@ class DragContext<T> {
                                     lastDropTargetRect.topLeft.y.roundToInt() == dragTargetRect.topLeft.y.roundToInt()
                         // Don't re-snap if already aligned; otherwise, will result in infinite loop
                         if (!snappedToDropTarget) {
-                            val snapOffsetX = dragTargetRect.left - lastDropTargetRect.left
-                            val snapOffsetY = dragTargetRect.top - lastDropTargetRect.top
-                            dragOffsetState.value = Offset(
-                                x = dragOffsetState.value.x - snapOffsetX,
-                                y = dragOffsetState.value.y - snapOffsetY
+                            val snapOffset = Offset(
+                                x = dragTargetRect.left - lastDropTargetRect.left,
+                                y = dragTargetRect.top - lastDropTargetRect.top
                             )
+                            dragOffsetState.value -= snapOffset
                         }
                     }
                 }
