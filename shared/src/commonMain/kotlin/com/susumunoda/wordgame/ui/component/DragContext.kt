@@ -167,8 +167,13 @@ class DragContext<T> {
                         // Don't re-snap if already aligned; otherwise, will result in infinite loop
                         if (!snappedToDropTarget) {
                             val snapOffset = Offset(
-                                x = dragTargetRect.left - lastDropTargetRect.left,
-                                y = dragTargetRect.top - lastDropTargetRect.top
+                                // Currently, `dragOffsetState` always reflects the dragged state's
+                                // scaling (i.e. `onDragScaleX` and `onDragScaleY`). Therefore, after
+                                // calculating the physical pixels that we want to offset by, we have
+                                // to transform the X and Y values based on the drag scaling factors.
+                                // See comment in the call to `Modifier.offset` for more details.
+                                x = (dragTargetRect.left - lastDropTargetRect.left) / dragOptions.onDragScaleX,
+                                y = (dragTargetRect.top - lastDropTargetRect.top) / dragOptions.onDragScaleY
                             )
                             dragOffsetState.value -= snapOffset
                         }
