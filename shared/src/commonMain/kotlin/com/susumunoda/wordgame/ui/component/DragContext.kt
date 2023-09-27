@@ -26,6 +26,10 @@ data class DragOptions(
     val snapPosition: SnapPosition? = null
 )
 
+data class DropOptions(
+    val maxDragTargets: Int = 1
+)
+
 enum class SnapPosition(val calculateOffset: (Rect) -> Offset) {
     TOP_LEFT(Rect::topLeft),
     TOP_CENTER(Rect::topCenter),
@@ -158,8 +162,11 @@ class DragContext<T> {
                         // more drag targets dropped into it.
                         dropTargetStates.forEach { dropTargetState ->
                             if (dropTargetState.globalRect.contains(dragTargetRect.center)) {
-                                dragTargetState.dropTargets.add(dropTargetState)
-                                dropTargetState.dragTargets.add(dragTargetState)
+                                // Only associate drag/drop targets if within the configured limits
+                                if (dropTargetState.dragTargets.size < dropTargetState.dropOptions.maxDragTargets) {
+                                    dragTargetState.dropTargets.add(dropTargetState)
+                                    dropTargetState.dragTargets.add(dragTargetState)
+                                }
                             } else {
                                 dragTargetState.dropTargets.remove(dropTargetState)
                                 dropTargetState.dragTargets.remove(dragTargetState)
@@ -238,6 +245,7 @@ class DragContext<T> {
         var globalRect: Rect = Rect.Zero,
         val onDrop: (T?) -> Unit = {},
         val onDrag: (T?) -> Unit = {},
+        val dropOptions: DropOptions = DropOptions(),
         val dragTargets: MutableSet<DragTargetState> = mutableSetOf(),
         val isHovered: MutableState<Boolean> = mutableStateOf(false)
     ) {
@@ -266,16 +274,18 @@ class DragContext<T> {
     private fun rememberDropTargetState(
         onDrop: (T?) -> Unit,
         onDrag: (T?) -> Unit,
+        dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ): DropTargetState {
-        val dropTargetState = remember(onDrop, onDrag, content) {
+        val dropTargetState = remember(onDrop, onDrag, dropOptions, content) {
             @Suppress("UNCHECKED_CAST")
             DropTargetState(
                 onDrop = onDrop as ((Any?) -> Unit),
-                onDrag = onDrag as ((Any?) -> Unit)
+                onDrag = onDrag as ((Any?) -> Unit),
+                dropOptions = dropOptions
             )
         }
-        DisposableEffect(onDrop, onDrag, content) {
+        DisposableEffect(onDrop, onDrag, dropOptions, content) {
             dropTargetStates.add(dropTargetState)
             onDispose {
                 dropTargetState.onDispose()
@@ -290,9 +300,10 @@ class DragContext<T> {
         onDrop: (T?) -> Unit,
         // Not required because there may be no need to respond to re-drag events
         onDrag: (T?) -> Unit = {},
+        dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ) {
-        val dropTargetState = rememberDropTargetState(onDrop, onDrag, content)
+        val dropTargetState = rememberDropTargetState(onDrop, onDrag, dropOptions, content)
         Box(
             modifier = Modifier.onGloballyPositioned {
                 dropTargetState.globalRect = it.boundsInWindow()
