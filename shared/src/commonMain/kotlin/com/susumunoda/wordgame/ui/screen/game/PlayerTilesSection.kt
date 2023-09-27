@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.ui.component.DragOptions
+import com.susumunoda.wordgame.ui.component.SnapPosition
 import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILES_ROW_BOTTOM_PADDING = 8.dp
@@ -85,6 +86,12 @@ private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
 }
 
 private const val TILE_DRAG_SCALE_FACTOR = 0.5f
+
+// This value was somewhat arbitrarily chosen and happens to work well for this specific instance,
+// but it is obviously a coincidence based on the dimensions of the grid and number of player tiles.
+// In the future, the grid cell and tile sizes should probably be hard-coded instead of calculated
+// based on the available screen width, as it is today.
+private const val TILE_DROP_SCALE_FACTOR = 0.5f
 private val TILE_LETTER_FONT_SIZE = 24.sp
 private val TILE_POINTS_FONT_SIZE = 16.sp
 private val TILE_POINTS_PADDING = 2.dp
@@ -96,7 +103,10 @@ private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
             data = tile,
             dragOptions = DragOptions(
                 onDragScaleX = TILE_DRAG_SCALE_FACTOR,
-                onDragScaleY = TILE_DRAG_SCALE_FACTOR
+                onDragScaleY = TILE_DRAG_SCALE_FACTOR,
+                onDropScaleX = TILE_DROP_SCALE_FACTOR,
+                onDropScaleY = TILE_DROP_SCALE_FACTOR,
+                snapPosition = SnapPosition.CENTER
             )
         ) {
             Box(
