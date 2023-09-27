@@ -23,6 +23,7 @@ data class DragOptions(
     val onDragScaleY: Float = 1.0f,
     val onDropScaleX: Float = 1.0f,
     val onDropScaleY: Float = 1.0f,
+    val snapToDropTarget: Boolean = false
 )
 
 enum class DragStatus { NONE, DRAGGING, DROPPED }
@@ -136,10 +137,10 @@ class DragContext<T> {
                     }
                 }
                 .onGloballyPositioned { coordinates ->
+                    val dragTargetRect = coordinates.boundsInWindow()
                     // Necessary to check if actually being dragged by the user and not moving due
                     // to an animating composable (e.g. AnimatedVisibility)
                     if (dragStatusState.value == DragStatus.DRAGGING) {
-                        val dragTargetRect = coordinates.boundsInWindow()
                         // M:N relationship between drag and drop targets; i.e. one drag target can get
                         // dropped into one or more drop targets, and one drop target can have one or
                         // more drag targets dropped into it.
@@ -153,6 +154,24 @@ class DragContext<T> {
                             }
                             // Update drop target, e.g. to show a hover indicator
                             dropTargetState.updateState()
+                        }
+                    } else if (dragStatusState.value == DragStatus.DROPPED && dragOptions.snapToDropTarget) {
+                        // This is a UX decision, but it seems to make the most sense to snap to the
+                        // last target that was hovered over (e.g. if drop target A contained drop
+                        // target B, and the drag target was dropped into B, then it makes sense to
+                        // snap to B instead of A).
+                        val lastDropTargetRect = dragTargetState.dropTargets.last().globalRect
+                        val snappedToDropTarget =
+                            lastDropTargetRect.topLeft.x.roundToInt() == dragTargetRect.topLeft.x.roundToInt() &&
+                                    lastDropTargetRect.topLeft.y.roundToInt() == dragTargetRect.topLeft.y.roundToInt()
+                        // Don't re-snap if already aligned; otherwise, will result in infinite loop
+                        if (!snappedToDropTarget) {
+                            val snapOffsetX = dragTargetRect.left - lastDropTargetRect.left
+                            val snapOffsetY = dragTargetRect.top - lastDropTargetRect.top
+                            dragOffsetState.value = Offset(
+                                x = dragOffsetState.value.x - snapOffsetX,
+                                y = dragOffsetState.value.y - snapOffsetY
+                            )
                         }
                     }
                 }
