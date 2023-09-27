@@ -20,17 +20,21 @@ import kotlin.math.roundToInt
 
 data class DragOptions(
     val onDragScaleX: Float = 1.0f,
-    val onDragScaleY: Float = 1.0f
+    val onDragScaleY: Float = 1.0f,
+    val onDropScaleX: Float = 1.0f,
+    val onDropScaleY: Float = 1.0f,
 )
+
+enum class DragStatus { NONE, DRAGGING, DROPPED }
 
 class DragContext<T> {
     private inner class DragTargetState(
-        var isDragging: MutableState<Boolean> = mutableStateOf(false),
+        var dragStatus: MutableState<DragStatus> = mutableStateOf(DragStatus.NONE),
         var dragOffset: MutableState<Offset> = mutableStateOf(Offset.Zero),
         var dropTargets: MutableSet<DropTargetState> = mutableSetOf()
     ) {
         fun resetState() {
-            isDragging.value = false
+            dragStatus.value = DragStatus.NONE
             dragOffset.value = Offset.Zero
         }
 
@@ -81,44 +85,60 @@ class DragContext<T> {
         content: @Composable () -> Unit
     ) {
         val dragTargetState = rememberDragTargetState(data, content)
-        val isDraggingState = dragTargetState.isDragging
+        val dragStatusState = dragTargetState.dragStatus
         val dragOffsetState = dragTargetState.dragOffset
 
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    if (isDraggingState.value) {
-                        scaleX = dragOptions.onDragScaleX
-                        scaleY = dragOptions.onDragScaleY
+                    when (dragStatusState.value) {
+                        DragStatus.DRAGGING -> {
+                            scaleX = dragOptions.onDragScaleX
+                            scaleY = dragOptions.onDragScaleY
+                        }
+
+                        DragStatus.DROPPED -> {
+                            scaleX = dragOptions.onDropScaleX
+                            scaleY = dragOptions.onDropScaleY
+                        }
+
+                        else -> {
+                            scaleX = 1f
+                            scaleY = 1f
+                        }
                     }
                 }
                 .offset {
                     val dragOffset = dragOffsetState.value
-                    if (isDraggingState.value) {
-                        IntOffset(
-                            x = dragOffset.x.roundToInt(),
-                            y = dragOffset.y.roundToInt()
-                        )
-                    } else {
-                        // When a drag event happens, any scaling that has been applied is
-                        // automatically accounted for in the offset provided to the `onDrag`
-                        // callback of `detectDragGestures`.
-                        // For instance, if a 100px * 100px box has a scale factor of 0.5 applied
-                        // (resulting in a 50px * 50px box) and is dragged 250px on the screen,
-                        // the `onDrag` callback actually receives an offset of 500px to account
-                        // for the scaling.
-                        // Therefore, we must account for scaling here so that drag targets remain
-                        // at the correct location on the screen when released.
-                        IntOffset(
-                            x = (dragOffset.x * dragOptions.onDragScaleX).roundToInt(),
-                            y = (dragOffset.y * dragOptions.onDragScaleY).roundToInt()
-                        )
+                    when (dragStatusState.value) {
+                        DragStatus.DRAGGING, DragStatus.NONE -> {
+                            IntOffset(
+                                x = dragOffset.x.roundToInt(),
+                                y = dragOffset.y.roundToInt()
+                            )
+                        }
+
+                        DragStatus.DROPPED -> {
+                            // When a drag event happens, scaling may be applied in `graphicsLayer`
+                            // above (e.g. scaled down to 50% in size). In such a case, the `onDrag`
+                            // callback of `detectDragGestures` will return a drag amount that has
+                            // been scaled to accommodate for the applied graphical scaling (in this
+                            // example, the returned offset will be 2x what it would normally be
+                            // without scaling). When a such a target is dropped and a scale factor
+                            // has been defined for the dropped state, then we must first "undo" the
+                            // scaling that was applied by `detectDragGestures` for the dragged state,
+                            // and then apply the appropriate scaling for the dropped state.
+                            IntOffset(
+                                x = (dragOffset.x * dragOptions.onDragScaleY / dragOptions.onDropScaleX).roundToInt(),
+                                y = (dragOffset.y * dragOptions.onDragScaleY / dragOptions.onDropScaleY).roundToInt()
+                            )
+                        }
                     }
                 }
                 .onGloballyPositioned { coordinates ->
                     // Necessary to check if actually being dragged by the user and not moving due
                     // to an animating composable (e.g. AnimatedVisibility)
-                    if (isDraggingState.value) {
+                    if (dragStatusState.value == DragStatus.DRAGGING) {
                         val globalOffset = coordinates.localToWindow(Offset.Zero)
                         // M:N relationship between drag and drop targets; i.e. one drag target can get
                         // dropped into one or more drop targets, and one drop target can have one or
@@ -139,7 +159,7 @@ class DragContext<T> {
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
-                            isDraggingState.value = true
+                            dragStatusState.value = DragStatus.DRAGGING
                             // Provide an opportunity for drop targets to respond to drag targets
                             // being dragged back out (e.g. update state to no longer account for
                             // this drag target's data)
@@ -150,11 +170,12 @@ class DragContext<T> {
                             }
                         },
                         onDragEnd = {
-                            isDraggingState.value = false
                             if (dragTargetState.dropTargets.isEmpty()) {
+                                dragStatusState.value = DragStatus.NONE
                                 // Return to original position
                                 dragOffsetState.value = Offset.Zero
                             } else {
+                                dragStatusState.value = DragStatus.DROPPED
                                 // It is the responsibility of the onDrop callback to update state
                                 // in such a way that this DropTarget leaves the composition (if desired).
                                 dragTargetState.dropTargets.forEach { dropTarget ->
