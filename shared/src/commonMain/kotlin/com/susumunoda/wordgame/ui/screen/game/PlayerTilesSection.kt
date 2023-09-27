@@ -96,7 +96,10 @@ private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
             data = tile,
             dragOptions = DragOptions(
                 onDragScaleX = TILE_DRAG_SCALE_FACTOR,
-                onDragScaleY = TILE_DRAG_SCALE_FACTOR
+                onDragScaleY = TILE_DRAG_SCALE_FACTOR,
+                onDropScaleX = 0.33f, // remove
+                onDropScaleY = 0.33f, // remove,
+                snapToDropTarget = true
             )
         ) {
             Box(

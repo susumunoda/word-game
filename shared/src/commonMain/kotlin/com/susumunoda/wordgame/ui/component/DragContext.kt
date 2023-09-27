@@ -16,6 +16,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntOffset
+import co.touchlab.kermit.Logger
 import kotlin.math.roundToInt
 
 data class DragOptions(
@@ -129,10 +130,12 @@ class DragContext<T> {
                             // has been defined for the dropped state, then we must first "undo" the
                             // scaling that was applied by `detectDragGestures` for the dragged state,
                             // and then apply the appropriate scaling for the dropped state.
-                            IntOffset(
+                            val offset = IntOffset(
                                 x = (dragOffset.x * dragOptions.onDragScaleY / dragOptions.onDropScaleX).roundToInt(),
                                 y = (dragOffset.y * dragOptions.onDragScaleY / dragOptions.onDropScaleY).roundToInt()
                             )
+                            Logger.i(tag = "DragContext", messageString = "offset at $offset")
+                            offset
                         }
                     }
                 }
@@ -169,6 +172,10 @@ class DragContext<T> {
                             val snapOffset = Offset(
                                 x = dragTargetRect.left - lastDropTargetRect.left,
                                 y = dragTargetRect.top - lastDropTargetRect.top
+                            )
+                            Logger.i(
+                                tag = "DragContext",
+                                messageString = "drag target at ${dragTargetRect.topLeft}, offsetting by ${-snapOffset} toward ${lastDropTargetRect.topLeft}"
                             )
                             dragOffsetState.value -= snapOffset
                         }
