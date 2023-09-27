@@ -23,8 +23,20 @@ data class DragOptions(
     val onDragScaleY: Float = 1.0f,
     val onDropScaleX: Float = 1.0f,
     val onDropScaleY: Float = 1.0f,
-    val snapToDropTarget: Boolean = false
+    val snapPosition: SnapPosition? = null
 )
+
+enum class SnapPosition(val calculateOffset: (Rect) -> Offset) {
+    TOP_LEFT(Rect::topLeft),
+    TOP_CENTER(Rect::topCenter),
+    TOP_RIGHT(Rect::topRight),
+    CENTER_LEFT(Rect::centerLeft),
+    CENTER(Rect::center),
+    CENTER_RIGHT(Rect::centerRight),
+    BOTTOM_LEFT(Rect::bottomLeft),
+    BOTTOM_CENTER(Rect::bottomCenter),
+    BOTTOM_RIGHT(Rect::bottomRight)
+}
 
 enum class DragStatus { NONE, DRAGGING, DROPPED }
 
@@ -155,25 +167,27 @@ class DragContext<T> {
                             // Update drop target, e.g. to show a hover indicator
                             dropTargetState.updateState()
                         }
-                    } else if (dragStatusState.value == DragStatus.DROPPED && dragOptions.snapToDropTarget) {
+                    } else if (dragStatusState.value == DragStatus.DROPPED && dragOptions.snapPosition != null) {
                         // This is a UX decision, but it seems to make the most sense to snap to the
                         // last target that was hovered over (e.g. if drop target A contained drop
                         // target B, and the drag target was dropped into B, then it makes sense to
                         // snap to B instead of A).
                         val lastDropTargetRect = dragTargetState.dropTargets.last().globalRect
-                        val snappedToDropTarget =
-                            lastDropTargetRect.topLeft.x.roundToInt() == dragTargetRect.topLeft.x.roundToInt() &&
-                                    lastDropTargetRect.topLeft.y.roundToInt() == dragTargetRect.topLeft.y.roundToInt()
+                        val snapFromOffset =
+                            dragOptions.snapPosition.calculateOffset(dragTargetRect)
+                        val snapToOffset =
+                            dragOptions.snapPosition.calculateOffset(lastDropTargetRect)
+                        val remainingOffset = snapFromOffset - snapToOffset
                         // Don't re-snap if already aligned; otherwise, will result in infinite loop
-                        if (!snappedToDropTarget) {
+                        if (remainingOffset.x.roundToInt() != 0 || remainingOffset.y.roundToInt() != 0) {
                             val snapOffset = Offset(
                                 // Currently, `dragOffsetState` always reflects the dragged state's
                                 // scaling (i.e. `onDragScaleX` and `onDragScaleY`). Therefore, after
                                 // calculating the physical pixels that we want to offset by, we have
                                 // to transform the X and Y values based on the drag scaling factors.
                                 // See comment in the call to `Modifier.offset` for more details.
-                                x = (dragTargetRect.left - lastDropTargetRect.left) / dragOptions.onDragScaleX,
-                                y = (dragTargetRect.top - lastDropTargetRect.top) / dragOptions.onDragScaleY
+                                x = remainingOffset.x / dragOptions.onDragScaleX,
+                                y = remainingOffset.y / dragOptions.onDragScaleY
                             )
                             dragOffsetState.value -= snapOffset
                         }
