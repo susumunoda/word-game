@@ -1,6 +1,5 @@
 package com.susumunoda.wordgame.ui.screen.game
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -44,38 +43,39 @@ private val TILES_ROW_BOTTOM_PADDING = 8.dp
 @Composable
 fun PlayerTilesSection(
     tiles: List<Tile>,
-    showTiles: Boolean,
-    toggleShowTiles: (Boolean) -> Unit,
+    tileVisibility: Boolean,
+    onTileVisibilityChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dragContext = LocalTileDragContext.current
     Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Show tiles")
-            Switch(
-                checked = showTiles,
-                onCheckedChange = { checked ->
-                    toggleShowTiles(checked)
-                    if (!checked) {
-                        // This is not strictly necessary as DragContext state will automatically
-                        // get cleaned up after the tiles leave the composition, but there is a
-                        // slight delay until the state is cleared (e.g. for any hovered cells to
-                        // go back to an unhovered state). Manually clear state for better UX.
-                        dragContext.resetDragTargets()
-                    }
-                }
-            )
-        }
-        AnimatedVisibility(visible = showTiles) {
-            PlayerTiles(
-                tiles = tiles,
-                modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
-            )
-        }
+        TileVisibilitySwitch(
+            visibility = tileVisibility,
+            onVisibilityChanged = onTileVisibilityChanged
+        )
+        PlayerTiles(
+            tiles = tiles,
+            tileVisibility = tileVisibility,
+            modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
+        )
+    }
+}
+
+@Composable
+private fun TileVisibilitySwitch(
+    modifier: Modifier = Modifier,
+    visibility: Boolean,
+    onVisibilityChanged: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text("Reveal tiles")
+        Switch(
+            checked = visibility,
+            onCheckedChange = onVisibilityChanged
+        )
     }
 }
 
@@ -84,7 +84,11 @@ private const val TILE_CONTAINER_SHADOW_ELEVATION = 10f
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
+private fun PlayerTiles(
+    tiles: List<Tile>,
+    tileVisibility: Boolean,
+    modifier: Modifier = Modifier
+) {
     BoxWithConstraints(modifier) {
         val tileSize = (maxWidth - (TILE_SPACING * (tiles.size - 1))) / tiles.size
         val tileSizePx = with(LocalDensity.current) { tileSize.toPx() }
@@ -135,10 +139,14 @@ private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
                     }
                     .background(Color.White)
             ) {
-                Tile(
-                    tile = tile,
-                    tileSize = tileSize
-                )
+                if (tileVisibility) {
+                    Tile(
+                        tile = tile,
+                        tileSize = tileSize
+                    )
+                } else {
+                    HiddenTile(tileSize)
+                }
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.width(tileSize)
@@ -197,5 +205,19 @@ private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HiddenTile(tileSize: Dp) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(tileSize).background(Color.LightGray)
+    ) {
+        Text(
+            text = "?",
+            fontSize = TILE_LETTER_FONT_SIZE,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

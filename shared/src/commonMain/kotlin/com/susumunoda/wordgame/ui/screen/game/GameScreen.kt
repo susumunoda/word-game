@@ -29,8 +29,8 @@ fun GameScreen(viewModel: WordGameViewModel, state: WordGameState, modifier: Mod
         GridSection()
         PlayerTilesSection(
             tiles = state.currentTurnPlayerTiles,
-            showTiles = state.showUserTiles,
-            toggleShowTiles = viewModel::setShowUserTiles
+            tileVisibility = state.showUserTiles,
+            onTileVisibilityChanged = viewModel::setShowUserTiles
         )
         ControlsSection()
         RemainingTilesSection(
