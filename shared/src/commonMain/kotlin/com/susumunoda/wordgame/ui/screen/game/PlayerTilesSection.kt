@@ -2,28 +2,42 @@ package com.susumunoda.wordgame.ui.screen.game
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.ui.component.DragOptions
 import com.susumunoda.wordgame.ui.component.SnapPosition
 import com.susumunoda.wordgame.ui.component.withDragContext
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
+import kotlin.math.roundToInt
 
 private val TILES_ROW_BOTTOM_PADDING = 8.dp
 
@@ -66,20 +80,71 @@ fun PlayerTilesSection(
 }
 
 private val TILE_SPACING = 8.dp
+private const val TILE_CONTAINER_SHADOW_ELEVATION = 10f
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun PlayerTiles(tiles: List<Tile>, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier) {
         val tileSize = (maxWidth - (TILE_SPACING * (tiles.size - 1))) / tiles.size
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            tiles.forEach { tile ->
+        val tileSizePx = with(LocalDensity.current) { tileSize.toPx() }
+        val tileSpacingPx = with(LocalDensity.current) { TILE_SPACING.toPx() }
+        fun offsetForIndex(index: Int) = index * (tileSizePx + tileSpacingPx)
+        val tileOffsets = remember { List(tiles.size) { offsetForIndex(it) }.toMutableStateList() }
+        val zIndices = remember { List(tiles.size) { 0f }.toMutableStateList() }
+
+        // Repositions all tiles to the appropriate offsets based on the relative order that they
+        // appear in the tile area
+        fun normalizeOffsets() {
+            val sortedOffsets = tileOffsets
+                .mapIndexed { index, offset -> Pair(index, offset) }
+                .sortedBy { it.second }
+            sortedOffsets.forEachIndexed { sortedIndex, (originalIndex, _) ->
+                tileOffsets[originalIndex] = offsetForIndex(sortedIndex)
+            }
+        }
+
+        // While normally a Row would get used to compose horizontally arranged elements, here we
+        // do not do so because we must be able to manually position each tile with an offset (e.g.
+        // for rearranging or shuffling tiles).
+        // Importantly, we want offsets to all start at the same start location (i.e. 0 means the
+        // left bound of the parent), which would not be true in a Row (i.e. 0 would mean wherever
+        // Row placed the tile relative to its siblings).
+        tiles.forEachIndexed { index, tile ->
+            Column(
+                modifier = Modifier
+                    .zIndex(zIndices[index])
+                    .offset { IntOffset(x = tileOffsets[index].roundToInt(), y = 0) }
+                    .graphicsLayer {
+                        // Cannot use `Modifier.shadow()` because that will place this entire composable
+                        // into a new graphics layer, which will obviously break UI functionality
+                        shadowElevation = TILE_CONTAINER_SHADOW_ELEVATION
+                    }
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDragStart = { zIndices[index] = 1f },
+                            onDragEnd = {
+                                zIndices[index] = 0f
+                                normalizeOffsets()
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                tileOffsets[index] += dragAmount.x
+                            }
+                        )
+                    }
+                    .background(Color.White)
+            ) {
                 Tile(
                     tile = tile,
                     tileSize = tileSize
                 )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.width(tileSize)
+                ) {
+                    Icon(painterResource("drag_icon.xml"), null)
+                }
             }
         }
     }
