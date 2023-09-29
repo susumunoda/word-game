@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -70,6 +71,14 @@ fun PlayerTilesSection(
             }
         }
 
+        // Shuffles tile offsets
+        fun shuffleOffsets() {
+            val shuffledOffsets = List(tiles.size) { it }.shuffled().map { offsetForIndex(it) }
+            tiles.forEachIndexed { index, _ ->
+                tileOffsets[index] = shuffledOffsets[index]
+            }
+        }
+
         Column(modifier = modifier) {
             TileVisibilitySwitch(
                 visibility = tileVisibility,
@@ -80,8 +89,11 @@ fun PlayerTilesSection(
                 tileSize = tileSize,
                 tileOffsets = tileOffsets,
                 tileVisibility = tileVisibility,
-                normalizeOffsets = ::normalizeOffsets,
+                onNormalizeOffsets = ::normalizeOffsets,
                 modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
+            )
+            TileControls(
+                onShuffleOffsets = ::shuffleOffsets
             )
         }
     }
@@ -116,7 +128,7 @@ private fun PlayerTiles(
     tileSize: Dp,
     tileOffsets: SnapshotStateList<Float>,
     tileVisibility: Boolean,
-    normalizeOffsets: () -> Unit,
+    onNormalizeOffsets: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val zIndices = remember { List(tiles.size) { 0f }.toMutableStateList() }
@@ -143,7 +155,7 @@ private fun PlayerTiles(
                             onDragStart = { zIndices[index] = 1f },
                             onDragEnd = {
                                 zIndices[index] = 0f
-                                normalizeOffsets()
+                                onNormalizeOffsets()
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
@@ -233,5 +245,46 @@ private fun HiddenTile(tileSize: Dp) {
             fontSize = TILE_LETTER_FONT_SIZE,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+val BUTTON_SPACING = 8.dp
+private val ICON_SIZE = 16.dp
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun TileControls(
+    onShuffleOffsets: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val dragContext = LocalTileDragContext.current
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(BUTTON_SPACING),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Button(
+            onClick = { onShuffleOffsets() },
+        ) {
+            Icon(
+                painter = painterResource("shuffle_icon.xml"),
+                contentDescription = "Shuffle tiles",
+                modifier = Modifier.size(ICON_SIZE)
+            )
+        }
+        Button(
+            onClick = { },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Submit")
+        }
+        Button(
+            onClick = { dragContext.resetDragTargets() },
+        ) {
+            Icon(
+                painter = painterResource("undo_icon.xml"),
+                contentDescription = "Clear tiles",
+                modifier = Modifier.size(ICON_SIZE)
+            )
+        }
     }
 }
