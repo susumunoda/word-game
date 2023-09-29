@@ -17,6 +17,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,16 +48,42 @@ fun PlayerTilesSection(
     onTileVisibilityChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        TileVisibilitySwitch(
-            visibility = tileVisibility,
-            onVisibilityChanged = onTileVisibilityChanged
-        )
-        PlayerTiles(
-            tiles = tiles,
-            tileVisibility = tileVisibility,
-            modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
-        )
+    BoxWithConstraints(modifier) {
+        val tileSize = (maxWidth - (TILE_SPACING * (tiles.size - 1))) / tiles.size
+        val tileSizePx = with(LocalDensity.current) { tileSize.toPx() }
+        val tileSpacingPx = with(LocalDensity.current) { TILE_SPACING.toPx() }
+
+        // Calculates the offset from the 0 position (parent's left boundary in LTR) for a given tile
+        fun offsetForIndex(index: Int) = index * (tileSizePx + tileSpacingPx)
+
+        // Tile offsets that can be manipulated by user interactions (e.g. rearranged, shuffled)
+        val tileOffsets = remember { List(tiles.size) { offsetForIndex(it) }.toMutableStateList() }
+
+        // Repositions all tiles to the appropriate offsets based on the relative order that they
+        // appear in the tile area
+        fun normalizeOffsets() {
+            val sortedOffsets = tileOffsets
+                .mapIndexed { index, offset -> Pair(index, offset) }
+                .sortedBy { it.second }
+            sortedOffsets.forEachIndexed { sortedIndex, (originalIndex, _) ->
+                tileOffsets[originalIndex] = offsetForIndex(sortedIndex)
+            }
+        }
+
+        Column(modifier = modifier) {
+            TileVisibilitySwitch(
+                visibility = tileVisibility,
+                onVisibilityChanged = onTileVisibilityChanged
+            )
+            PlayerTiles(
+                tiles = tiles,
+                tileSize = tileSize,
+                tileOffsets = tileOffsets,
+                tileVisibility = tileVisibility,
+                normalizeOffsets = ::normalizeOffsets,
+                modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
+            )
+        }
     }
 }
 
@@ -86,34 +113,21 @@ private const val TILE_CONTAINER_SHADOW_ELEVATION = 10f
 @Composable
 private fun PlayerTiles(
     tiles: List<Tile>,
+    tileSize: Dp,
+    tileOffsets: SnapshotStateList<Float>,
     tileVisibility: Boolean,
+    normalizeOffsets: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BoxWithConstraints(modifier) {
-        val tileSize = (maxWidth - (TILE_SPACING * (tiles.size - 1))) / tiles.size
-        val tileSizePx = with(LocalDensity.current) { tileSize.toPx() }
-        val tileSpacingPx = with(LocalDensity.current) { TILE_SPACING.toPx() }
-        fun offsetForIndex(index: Int) = index * (tileSizePx + tileSpacingPx)
-        val tileOffsets = remember { List(tiles.size) { offsetForIndex(it) }.toMutableStateList() }
-        val zIndices = remember { List(tiles.size) { 0f }.toMutableStateList() }
+    val zIndices = remember { List(tiles.size) { 0f }.toMutableStateList() }
 
-        // Repositions all tiles to the appropriate offsets based on the relative order that they
-        // appear in the tile area
-        fun normalizeOffsets() {
-            val sortedOffsets = tileOffsets
-                .mapIndexed { index, offset -> Pair(index, offset) }
-                .sortedBy { it.second }
-            sortedOffsets.forEachIndexed { sortedIndex, (originalIndex, _) ->
-                tileOffsets[originalIndex] = offsetForIndex(sortedIndex)
-            }
-        }
-
-        // While normally a Row would get used to compose horizontally arranged elements, here we
-        // do not do so because we must be able to manually position each tile with an offset (e.g.
-        // for rearranging or shuffling tiles).
-        // Importantly, we want offsets to all start at the same start location (i.e. 0 means the
-        // left bound of the parent), which would not be true in a Row (i.e. 0 would mean wherever
-        // Row placed the tile relative to its siblings).
+    // While normally a Row would get used to compose horizontally arranged elements, here we
+    // do not do so because we must be able to manually position each tile with an offset (e.g.
+    // for rearranging or shuffling tiles).
+    // Importantly, we want offsets to all start at the same start location (i.e. 0 means the
+    // left bound of the parent), which would not be true in a Row (i.e. 0 would mean wherever
+    // Row placed the tile relative to its siblings).
+    Box(modifier) {
         tiles.forEachIndexed { index, tile ->
             Column(
                 modifier = Modifier
