@@ -46,7 +46,7 @@ enum class DragStatus { NONE, DRAGGING, DROPPED }
 
 class DragContext<T> {
     private inner class DragTargetState(
-        val data: T? = null,
+        val data: T,
         val dragStatus: MutableState<DragStatus> = mutableStateOf(DragStatus.NONE),
         val dragOffset: MutableState<Offset> = mutableStateOf(Offset.Zero),
         val dropTargets: MutableSet<DropTargetState> = mutableSetOf()
@@ -84,7 +84,7 @@ class DragContext<T> {
 
     @Composable
     private fun rememberDragTargetState(
-        data: T?,
+        data: T,
         content: @Composable (DragStatus) -> Unit
     ): DragTargetState {
         val dragTargetState = remember(data, content) { DragTargetState(data) }
@@ -100,7 +100,7 @@ class DragContext<T> {
 
     @Composable
     fun DragTarget(
-        data: T? = null,
+        data: T,
         dragOptions: DragOptions = DragOptions(),
         content: @Composable (DragStatus) -> Unit
     ) {
@@ -262,8 +262,8 @@ class DragContext<T> {
 
     private inner class DropTargetState(
         var globalRect: Rect = Rect.Zero,
-        val onDragTargetAdded: (T?) -> Unit = {},
-        val onDragTargetRemoved: (T?) -> Unit = {},
+        val onDragTargetAdded: (T) -> Unit = {},
+        val onDragTargetRemoved: (T) -> Unit = {},
         val dropOptions: DropOptions = DropOptions(),
         val dragTargets: MutableSet<DragTargetState> = mutableSetOf(),
         val isHovered: MutableState<Boolean> = mutableStateOf(false)
@@ -291,17 +291,16 @@ class DragContext<T> {
 
     @Composable
     private fun rememberDropTargetState(
-        onDragTargetAdded: (T?) -> Unit,
-        onDragTargetRemoved: (T?) -> Unit,
+        onDragTargetAdded: (T) -> Unit,
+        onDragTargetRemoved: (T) -> Unit,
         dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ): DropTargetState {
         val dropTargetState =
             remember(onDragTargetAdded, onDragTargetRemoved, dropOptions, content) {
-                @Suppress("UNCHECKED_CAST")
                 DropTargetState(
-                    onDragTargetAdded = onDragTargetAdded as ((Any?) -> Unit),
-                    onDragTargetRemoved = onDragTargetRemoved as ((Any?) -> Unit),
+                    onDragTargetAdded = onDragTargetAdded,
+                    onDragTargetRemoved = onDragTargetRemoved,
                     dropOptions = dropOptions
                 )
             }
@@ -317,9 +316,9 @@ class DragContext<T> {
 
     @Composable
     fun DropTarget(
-        onDragTargetAdded: (T?) -> Unit,
+        onDragTargetAdded: (T) -> Unit,
         // Not required because there may be no need to respond to re-drag events
-        onDragTargetRemoved: (T?) -> Unit = {},
+        onDragTargetRemoved: (T) -> Unit = {},
         dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ) {

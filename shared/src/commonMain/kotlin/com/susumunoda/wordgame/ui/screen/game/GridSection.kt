@@ -62,14 +62,14 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                                 onTilePlaced = { tile ->
                                     Logger.i(
                                         tag = "GridSection",
-                                        messageString = "Placed ${tile?.name} at [$i,$j]"
+                                        messageString = "Placed ${tile.name} at [$i,$j]"
                                     )
                                     placedTile = tile
                                 },
                                 onTileRemoved = { tile ->
                                     Logger.i(
                                         tag = "GridSection",
-                                        messageString = "Removed ${tile?.name} from [$i,$j]"
+                                        messageString = "Removed ${tile.name} from [$i,$j]"
                                     )
                                     placedTile = null
                                 }
@@ -89,8 +89,8 @@ private fun GridCell(
     cellType: CellType,
     cellSize: Dp,
     placedTile: Tile?,
-    onTilePlaced: (Tile?) -> Unit,
-    onTileRemoved: (Tile?) -> Unit,
+    onTilePlaced: (Tile) -> Unit,
+    onTileRemoved: (Tile) -> Unit,
     modifier: Modifier = Modifier
 ) {
     withDragContext(LocalTileDragContext.current) {
