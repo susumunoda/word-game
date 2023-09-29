@@ -205,6 +205,9 @@ private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
             dragOptions = DragOptions(
                 onDragScaleX = TILE_DRAG_SCALE_FACTOR,
                 onDragScaleY = TILE_DRAG_SCALE_FACTOR,
+                // Even though we set the tile's alpha to zero in a dropped state (see below), this
+                // scaling must still be applied so that the tile has the correct bounds in case it
+                // is dragged again in the future.
                 onDropScaleX = TILE_DROP_SCALE_FACTOR,
                 onDropScaleY = TILE_DROP_SCALE_FACTOR,
                 snapPosition = SnapPosition.CENTER
