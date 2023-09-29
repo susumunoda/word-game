@@ -180,23 +180,39 @@ class DragContext<T> {
                         // target B, and the drag target was dropped into B, then it makes sense to
                         // snap to B instead of A).
                         val lastDropTargetRect = dragTargetState.dropTargets.last().globalRect
-                        val snapFromOffset =
-                            dragOptions.snapPosition.calculateOffset(dragTargetRect)
-                        val snapToOffset =
-                            dragOptions.snapPosition.calculateOffset(lastDropTargetRect)
-                        val remainingOffset = snapFromOffset - snapToOffset
-                        // Don't re-snap if already aligned; otherwise, will result in infinite loop
-                        if (remainingOffset.x.roundToInt() != 0 || remainingOffset.y.roundToInt() != 0) {
-                            val snapOffset = Offset(
-                                // Currently, `dragOffsetState` always reflects the dragged state's
-                                // scaling (i.e. `onDragScaleX` and `onDragScaleY`). Therefore, after
-                                // calculating the physical pixels that we want to offset by, we have
-                                // to transform the X and Y values based on the drag scaling factors.
-                                // See comment in the call to `Modifier.offset` for more details.
-                                x = remainingOffset.x / dragOptions.onDragScaleX,
-                                y = remainingOffset.y / dragOptions.onDragScaleY
-                            )
-                            dragOffsetState.value -= snapOffset
+
+                        // If the drag target is in a dropped state with an area of 0, it means that
+                        // somehow the drag root (i.e. the composable that it is anchored to) must
+                        // have moved at a rapid pace in such a way that the drag target went off
+                        // screen without enough time to stay snapped to the drop target. In such a
+                        // case, because the drag target now has no global position (i.e. it is not
+                        // on the screen), there is no way to calculate the difference in position
+                        // between it and the drop target. Therefore, in order to avoid the drag
+                        // target being in an unreachable state, temporarily bring it back to its
+                        // root position so that it has a positive area again. Once this occurs,
+                        // `onGloballyPositioned` will fire again and snap the drag target back to
+                        // its drop target.
+                        if (dragTargetRect == Rect.Zero) {
+                            dragOffsetState.value = Offset.Zero
+                        } else {
+                            val snapFromOffset =
+                                dragOptions.snapPosition.calculateOffset(dragTargetRect)
+                            val snapToOffset =
+                                dragOptions.snapPosition.calculateOffset(lastDropTargetRect)
+                            val remainingOffset = snapFromOffset - snapToOffset
+                            // Don't re-snap if already aligned; otherwise, will result in infinite loop
+                            if (remainingOffset.x.roundToInt() != 0 || remainingOffset.y.roundToInt() != 0) {
+                                val snapOffset = Offset(
+                                    // Currently, `dragOffsetState` always reflects the dragged state's
+                                    // scaling (i.e. `onDragScaleX` and `onDragScaleY`). Therefore, after
+                                    // calculating the physical pixels that we want to offset by, we have
+                                    // to transform the X and Y values based on the drag scaling factors.
+                                    // See comment in the call to `Modifier.offset` for more details.
+                                    x = remainingOffset.x / dragOptions.onDragScaleX,
+                                    y = remainingOffset.y / dragOptions.onDragScaleY
+                                )
+                                dragOffsetState.value -= snapOffset
+                            }
                         }
                     }
                 }
