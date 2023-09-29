@@ -46,9 +46,10 @@ enum class DragStatus { NONE, DRAGGING, DROPPED }
 
 class DragContext<T> {
     private inner class DragTargetState(
-        var dragStatus: MutableState<DragStatus> = mutableStateOf(DragStatus.NONE),
-        var dragOffset: MutableState<Offset> = mutableStateOf(Offset.Zero),
-        var dropTargets: MutableSet<DropTargetState> = mutableSetOf()
+        val data: T? = null,
+        val dragStatus: MutableState<DragStatus> = mutableStateOf(DragStatus.NONE),
+        val dragOffset: MutableState<Offset> = mutableStateOf(Offset.Zero),
+        val dropTargets: MutableSet<DropTargetState> = mutableSetOf()
     ) {
         fun resetState() {
             dragStatus.value = DragStatus.NONE
@@ -61,6 +62,8 @@ class DragContext<T> {
                 dropTarget.dragTargets.remove(this)
                 // Update state - e.g. update hover state in case this was the only drag target
                 dropTarget.updateState()
+                // Notify drop target of the change
+                dropTarget.onDragTargetRemoved(data)
             }
             dropTargets.clear()
         }
@@ -82,9 +85,9 @@ class DragContext<T> {
     @Composable
     private fun rememberDragTargetState(
         data: T?,
-        content: @Composable () -> Unit
+        content: @Composable (DragStatus) -> Unit
     ): DragTargetState {
-        val dragTargetState = remember(data, content) { DragTargetState() }
+        val dragTargetState = remember(data, content) { DragTargetState(data) }
         DisposableEffect(data, content) {
             dragTargetStates.add(dragTargetState)
             onDispose {
@@ -99,7 +102,7 @@ class DragContext<T> {
     fun DragTarget(
         data: T? = null,
         dragOptions: DragOptions = DragOptions(),
-        content: @Composable () -> Unit
+        content: @Composable (DragStatus) -> Unit
     ) {
         val dragTargetState = rememberDragTargetState(data, content)
         val dragStatusState = dragTargetState.dragStatus
@@ -226,7 +229,7 @@ class DragContext<T> {
                             // Future: Consider what it would mean for incoming data to change after the
                             // initial drop. How to inform drop targets of re-drag events in this case?
                             dragTargetState.dropTargets.forEach { dropTarget ->
-                                dropTarget.onDrag(data)
+                                dropTarget.onDragTargetRemoved(data)
                             }
                         },
                         onDragEnd = {
@@ -239,7 +242,7 @@ class DragContext<T> {
                                 // It is the responsibility of the onDrop callback to update state
                                 // in such a way that this DropTarget leaves the composition (if desired).
                                 dragTargetState.dropTargets.forEach { dropTarget ->
-                                    dropTarget.onDrop(data)
+                                    dropTarget.onDragTargetAdded(data)
                                 }
                             }
                         },
@@ -253,14 +256,14 @@ class DragContext<T> {
                     )
                 }
         ) {
-            content()
+            content(dragStatusState.value)
         }
     }
 
     private inner class DropTargetState(
         var globalRect: Rect = Rect.Zero,
-        val onDrop: (T?) -> Unit = {},
-        val onDrag: (T?) -> Unit = {},
+        val onDragTargetAdded: (T?) -> Unit = {},
+        val onDragTargetRemoved: (T?) -> Unit = {},
         val dropOptions: DropOptions = DropOptions(),
         val dragTargets: MutableSet<DragTargetState> = mutableSetOf(),
         val isHovered: MutableState<Boolean> = mutableStateOf(false)
@@ -288,20 +291,21 @@ class DragContext<T> {
 
     @Composable
     private fun rememberDropTargetState(
-        onDrop: (T?) -> Unit,
-        onDrag: (T?) -> Unit,
+        onDragTargetAdded: (T?) -> Unit,
+        onDragTargetRemoved: (T?) -> Unit,
         dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ): DropTargetState {
-        val dropTargetState = remember(onDrop, onDrag, dropOptions, content) {
-            @Suppress("UNCHECKED_CAST")
-            DropTargetState(
-                onDrop = onDrop as ((Any?) -> Unit),
-                onDrag = onDrag as ((Any?) -> Unit),
-                dropOptions = dropOptions
-            )
-        }
-        DisposableEffect(onDrop, onDrag, dropOptions, content) {
+        val dropTargetState =
+            remember(onDragTargetAdded, onDragTargetRemoved, dropOptions, content) {
+                @Suppress("UNCHECKED_CAST")
+                DropTargetState(
+                    onDragTargetAdded = onDragTargetAdded as ((Any?) -> Unit),
+                    onDragTargetRemoved = onDragTargetRemoved as ((Any?) -> Unit),
+                    dropOptions = dropOptions
+                )
+            }
+        DisposableEffect(onDragTargetAdded, onDragTargetRemoved, dropOptions, content) {
             dropTargetStates.add(dropTargetState)
             onDispose {
                 dropTargetState.onDispose()
@@ -313,13 +317,14 @@ class DragContext<T> {
 
     @Composable
     fun DropTarget(
-        onDrop: (T?) -> Unit,
+        onDragTargetAdded: (T?) -> Unit,
         // Not required because there may be no need to respond to re-drag events
-        onDrag: (T?) -> Unit = {},
+        onDragTargetRemoved: (T?) -> Unit = {},
         dropOptions: DropOptions = DropOptions(),
         content: @Composable (Boolean) -> Unit
     ) {
-        val dropTargetState = rememberDropTargetState(onDrop, onDrag, dropOptions, content)
+        val dropTargetState =
+            rememberDropTargetState(onDragTargetAdded, onDragTargetRemoved, dropOptions, content)
         Box(
             modifier = Modifier.onGloballyPositioned {
                 dropTargetState.globalRect = it.boundsInWindow()

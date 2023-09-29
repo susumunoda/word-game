@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,10 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,8 +36,6 @@ import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILE_SPACING = 2.dp
-private val TILE_FONT_SIZE = 8.sp
-private val TILE_ROUNDING = 4.dp
 
 @Composable
 internal fun GridSection(modifier: Modifier = Modifier) {
@@ -51,24 +54,24 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         row.forEachIndexed { j, cellType ->
-                            EmptyCell(
+                            var placedTile by remember { mutableStateOf<Tile?>(null) }
+                            GridCell(
                                 cellType = cellType,
                                 cellSize = cellSize,
+                                placedTile = placedTile,
                                 onTilePlaced = { tile ->
-                                    if (tile != null) {
-                                        Logger.i(
-                                            tag = "GridSection",
-                                            messageString = "Placed ${tile.name} at [$i,$j]"
-                                        )
-                                    }
+                                    Logger.i(
+                                        tag = "GridSection",
+                                        messageString = "Placed ${tile?.name} at [$i,$j]"
+                                    )
+                                    placedTile = tile
                                 },
                                 onTileRemoved = { tile ->
-                                    if (tile != null) {
-                                        Logger.i(
-                                            tag = "GridSection",
-                                            messageString = "Removed ${tile.name} from [$i,$j]"
-                                        )
-                                    }
+                                    Logger.i(
+                                        tag = "GridSection",
+                                        messageString = "Removed ${tile?.name} from [$i,$j]"
+                                    )
+                                    placedTile = null
                                 }
                             )
                         }
@@ -82,42 +85,91 @@ internal fun GridSection(modifier: Modifier = Modifier) {
 private val HOVERED_BORDER_WIDTH = 2.dp
 
 @Composable
-private fun EmptyCell(
+private fun GridCell(
     cellType: CellType,
     cellSize: Dp,
+    placedTile: Tile?,
     onTilePlaced: (Tile?) -> Unit,
     onTileRemoved: (Tile?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     withDragContext(LocalTileDragContext.current) {
         DropTarget(
-            onDrop = onTilePlaced,
-            onDrag = onTileRemoved
+            onDragTargetAdded = onTilePlaced,
+            onDragTargetRemoved = onTileRemoved
         ) { isHovered ->
-            Box(
-                modifier = modifier
-                    .size(cellSize)
-                    .clip(RoundedCornerShape(TILE_ROUNDING))
-                    .background(cellType.color)
-                    .then(
-                        if (isHovered) {
-                            Modifier.border(HOVERED_BORDER_WIDTH, Color.Red)
-                        } else {
-                            Modifier
-                        }
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                if (cellType == CellType.ST) {
-                    Icon(Icons.Filled.Star, null, tint = Color.White)
-                } else {
-                    Text(
-                        cellType.name,
-                        fontSize = TILE_FONT_SIZE,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            if (placedTile == null) {
+                EmptyCell(cellType, cellSize, isHovered)
+            } else {
+                TileCell(placedTile, cellSize)
             }
+        }
+    }
+}
+
+private val EMPTY_CELL_FONT_SIZE = 8.sp
+private val TILE_ROUNDING = 4.dp
+
+@Composable
+private fun EmptyCell(
+    cellType: CellType,
+    cellSize: Dp,
+    isHovered: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(cellSize)
+            .clip(RoundedCornerShape(TILE_ROUNDING))
+            .background(cellType.color)
+            .then(
+                if (isHovered) {
+                    Modifier.border(HOVERED_BORDER_WIDTH, Color.Red)
+                } else {
+                    Modifier
+                }
+            )
+    ) {
+        if (cellType == CellType.ST) {
+            Icon(Icons.Filled.Star, null, tint = Color.White)
+        } else {
+            Text(
+                cellType.name,
+                fontSize = EMPTY_CELL_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+private val TILE_LETTER_FONT_SIZE = 10.sp
+private val TILE_POINTS_FONT_SIZE = 6.sp
+private val TILE_POINTS_PADDING = 2.dp
+
+@Composable
+private fun TileCell(tile: Tile, cellSize: Dp, modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(cellSize)
+            .clip(RoundedCornerShape(TILE_ROUNDING))
+            .background(Color.Yellow)
+    ) {
+        if (tile != Tile.BLANK) {
+            Text(
+                text = tile.name,
+                fontSize = TILE_LETTER_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = tile.points.toString(),
+                fontSize = TILE_POINTS_FONT_SIZE,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(TILE_POINTS_PADDING)
+            )
         }
     }
 }

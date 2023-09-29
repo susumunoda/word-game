@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.ui.component.DragOptions
+import com.susumunoda.wordgame.ui.component.DragStatus
 import com.susumunoda.wordgame.ui.component.SnapPosition
 import com.susumunoda.wordgame.ui.component.withDragContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -207,10 +209,15 @@ private fun Tile(tile: Tile, tileSize: Dp, modifier: Modifier = Modifier) {
                 onDropScaleY = TILE_DROP_SCALE_FACTOR,
                 snapPosition = SnapPosition.CENTER
             )
-        ) {
+        ) { dragStatus ->
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = modifier
+                    // It is the responsibility of the grid to display information for a placed tile
+                    // (vs simply keeping the placed tile visible at all times). This is because a
+                    // placed tile is susceptible to visual jitter if its parent composable were to
+                    // be moved, for example while rearranging or shuffling the tiles.
+                    .alpha(if (dragStatus == DragStatus.DROPPED) 0f else 1f)
                     .size(tileSize)
                     .background(Color.Yellow)
             ) {
