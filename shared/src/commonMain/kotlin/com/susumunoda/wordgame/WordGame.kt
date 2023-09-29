@@ -10,6 +10,13 @@ import androidx.compose.ui.Alignment
 import com.susumunoda.wordgame.ui.screen.game.GameScreen
 import com.susumunoda.wordgame.ui.screen.landing.LandingScreen
 import com.susumunoda.wordgame.ui.screen.summary.SummaryScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+
+// FUTURE: Provide these via dependency injection
+private val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+private val wordListProvider = WordListProvider(globalScope)
 
 @Composable
 fun WordGame(viewModel: WordGameViewModel = viewModel()) {
@@ -29,7 +36,7 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
         }
 
         GameStatus.STARTED -> {
-            if (viewModel.wordListState != null) {
+            if (wordListProvider.wordListState != null) {
                 GameScreen(viewModel, uiState)
             } else {
                 // Prevent interactions until the word list has finished being loaded
