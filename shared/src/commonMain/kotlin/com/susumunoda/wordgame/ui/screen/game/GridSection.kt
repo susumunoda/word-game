@@ -17,10 +17,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import co.touchlab.kermit.Logger
 import com.susumunoda.wordgame.CellType
 import com.susumunoda.wordgame.GRID
 import com.susumunoda.wordgame.Tile
@@ -38,7 +33,12 @@ import com.susumunoda.wordgame.ui.component.withDragContext
 private val TILE_SPACING = 2.dp
 
 @Composable
-internal fun GridSection(modifier: Modifier = Modifier) {
+internal fun GridSection(
+    onGetTile: (row: Int, column: Int) -> PlacedTile?,
+    onSetTile: (tile: Tile, row: Int, column: Int) -> Unit,
+    onRemoveTile: (row: Int, column: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     BoxWithConstraints(modifier) {
         val cellSize = (maxWidth - (TILE_SPACING * (GRID.size - 1))) / GRID.size
 
@@ -54,25 +54,12 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         row.forEachIndexed { j, cellType ->
-                            var placedTile by remember { mutableStateOf<Tile?>(null) }
                             GridCell(
                                 cellType = cellType,
                                 cellSize = cellSize,
-                                placedTile = placedTile,
-                                onTilePlaced = { tile ->
-                                    Logger.i(
-                                        tag = "GridSection",
-                                        messageString = "Placed ${tile.name} at [$i,$j]"
-                                    )
-                                    placedTile = tile
-                                },
-                                onTileRemoved = { tile ->
-                                    Logger.i(
-                                        tag = "GridSection",
-                                        messageString = "Removed ${tile.name} from [$i,$j]"
-                                    )
-                                    placedTile = null
-                                }
+                                placedTile = onGetTile(i, j)?.tile,
+                                onTilePlaced = { onSetTile(it, i, j) },
+                                onTileRemoved = { onRemoveTile(i, j) }
                             )
                         }
                     }

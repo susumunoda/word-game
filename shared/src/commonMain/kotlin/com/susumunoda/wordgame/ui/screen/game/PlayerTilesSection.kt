@@ -49,6 +49,7 @@ fun PlayerTilesSection(
     tiles: List<Tile>,
     tileVisibility: Boolean,
     onTileVisibilityChanged: (Boolean) -> Unit,
+    isSubmitEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier) {
@@ -95,7 +96,8 @@ fun PlayerTilesSection(
                 modifier = Modifier.padding(bottom = TILES_ROW_BOTTOM_PADDING)
             )
             TileControls(
-                onShuffleOffsets = ::shuffleOffsets
+                onShuffleOffsets = ::shuffleOffsets,
+                isSubmitEnabled = isSubmitEnabled
             )
         }
     }
@@ -265,6 +267,7 @@ private val ICON_SIZE = 16.dp
 @Composable
 private fun TileControls(
     onShuffleOffsets: () -> Unit,
+    isSubmitEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     val dragContext = LocalTileDragContext.current
@@ -283,7 +286,8 @@ private fun TileControls(
         }
         Button(
             onClick = { },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            enabled = isSubmitEnabled
         ) {
             Text("Submit")
         }
