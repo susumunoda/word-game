@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.susumunoda.wordgame.GridState
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.WordGameState
 import com.susumunoda.wordgame.WordGameViewModel
@@ -19,14 +20,21 @@ private val HORIZONTAL_PADDING = PaddingValues(horizontal = 16.dp)
 val LocalTileDragContext = compositionLocalOf { DragContext<Tile>() }
 
 @Composable
-fun GameScreen(viewModel: WordGameViewModel, state: WordGameState, modifier: Modifier = Modifier) {
+fun GameScreen(
+    viewModel: WordGameViewModel,
+    state: WordGameState,
+    gridState: GridState,
+    modifier: Modifier = Modifier
+) {
     Column(modifier.padding(HORIZONTAL_PADDING)) {
         ScoresSection(
             playerOneData = state.playerOneData,
             playerTwoData = state.playerTwoData,
             currentTurnPlayer = state.currentTurnPlayer
         )
-        GridSection()
+        GridSection(
+            gridState = gridState
+        )
         PlayerTilesSection(
             tiles = state.currentTurnPlayerTiles,
             tileVisibility = state.showUserTiles,

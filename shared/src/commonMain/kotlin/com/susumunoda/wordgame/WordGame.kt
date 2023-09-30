@@ -19,7 +19,7 @@ private val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 private val wordListProvider = WordListProvider(globalScope)
 
 @Composable
-fun WordGame(viewModel: WordGameViewModel = viewModel()) {
+fun WordGame(viewModel: WordGameViewModel = viewModel(), gridState: GridState = gridState()) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (uiState.gameStatus) {
@@ -37,7 +37,7 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
 
         GameStatus.STARTED -> {
             if (wordListProvider.wordListState != null) {
-                GameScreen(viewModel, uiState)
+                GameScreen(viewModel, uiState, gridState)
             } else {
                 // Prevent interactions until the word list has finished being loaded
                 Box(contentAlignment = Alignment.Center) {
@@ -57,3 +57,6 @@ fun WordGame(viewModel: WordGameViewModel = viewModel()) {
 
 @Composable
 private fun viewModel(): WordGameViewModel = remember { WordGameViewModel() }
+
+@Composable
+private fun gridState() = remember { GridState() }

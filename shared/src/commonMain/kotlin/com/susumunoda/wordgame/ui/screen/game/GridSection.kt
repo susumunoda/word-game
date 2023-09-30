@@ -32,13 +32,18 @@ import androidx.compose.ui.unit.sp
 import co.touchlab.kermit.Logger
 import com.susumunoda.wordgame.CellType
 import com.susumunoda.wordgame.GRID
+import com.susumunoda.wordgame.GridState
+import com.susumunoda.wordgame.PlacedTile
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILE_SPACING = 2.dp
 
 @Composable
-internal fun GridSection(modifier: Modifier = Modifier) {
+internal fun GridSection(
+    gridState: GridState,
+    modifier: Modifier = Modifier
+) {
     BoxWithConstraints(modifier) {
         val cellSize = (maxWidth - (TILE_SPACING * (GRID.size - 1))) / GRID.size
 
@@ -54,25 +59,12 @@ internal fun GridSection(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         row.forEachIndexed { j, cellType ->
-                            var placedTile by remember { mutableStateOf<Tile?>(null) }
                             GridCell(
                                 cellType = cellType,
                                 cellSize = cellSize,
-                                placedTile = placedTile,
-                                onTilePlaced = { tile ->
-                                    Logger.i(
-                                        tag = "GridSection",
-                                        messageString = "Placed ${tile.name} at [$i,$j]"
-                                    )
-                                    placedTile = tile
-                                },
-                                onTileRemoved = { tile ->
-                                    Logger.i(
-                                        tag = "GridSection",
-                                        messageString = "Removed ${tile.name} from [$i,$j]"
-                                    )
-                                    placedTile = null
-                                }
+                                placedTile = gridState.getTile(i, j)?.tile,
+                                onTilePlaced = { gridState.placeTile(it, i, j) },
+                                onTileRemoved = { gridState.removeTile(i, j) }
                             )
                         }
                     }
