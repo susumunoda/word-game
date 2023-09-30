@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.susumunoda.wordgame.GridState
@@ -33,9 +34,9 @@ fun GameScreen(
             currentTurnPlayer = state.currentTurnPlayer
         )
         GridSection(
-            gridState = gridState,
-            placeTile = gridState::placeTile,
-            removeTile = gridState::removeTile
+            getTile = remember { gridState::getTile },
+            placeTile = remember { gridState::placeTile },
+            removeTile = remember { gridState::removeTile }
         )
         PlayerTilesSection(
             tiles = state.currentTurnPlayerTiles,

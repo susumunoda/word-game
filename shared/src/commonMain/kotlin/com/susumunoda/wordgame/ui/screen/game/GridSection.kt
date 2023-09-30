@@ -41,7 +41,7 @@ private val TILE_SPACING = 2.dp
 
 @Composable
 internal fun GridSection(
-    gridState: GridState,
+    getTile: (row: Int, column: Int) -> PlacedTile?,
     placeTile: (tile: Tile, row: Int, column: Int) -> Boolean,
     removeTile: (row: Int, column: Int) -> Boolean,
     modifier: Modifier = Modifier
@@ -64,7 +64,7 @@ internal fun GridSection(
                             GridCell(
                                 cellType = cellType,
                                 cellSize = cellSize,
-                                placedTile = gridState.getTile(i, j)?.tile,
+                                placedTile = getTile(i, j)?.tile,
                                 onTilePlaced = { placeTile(it, i, j) },
                                 onTileRemoved = { removeTile(i, j) }
                             )
