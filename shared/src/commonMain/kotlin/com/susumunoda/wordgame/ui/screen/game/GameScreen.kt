@@ -33,7 +33,9 @@ fun GameScreen(
             currentTurnPlayer = state.currentTurnPlayer
         )
         GridSection(
-            gridState = gridState
+            gridState = gridState,
+            placeTile = gridState::placeTile,
+            removeTile = gridState::removeTile
         )
         PlayerTilesSection(
             tiles = state.currentTurnPlayerTiles,
