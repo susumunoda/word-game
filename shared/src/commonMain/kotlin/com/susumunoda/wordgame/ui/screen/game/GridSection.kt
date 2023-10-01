@@ -55,11 +55,13 @@ internal fun GridSection(
                     ) {
                         row.forEachIndexed { j, cellType ->
                             GridCell(
+                                row = i,
+                                column = j,
                                 cellType = cellType,
                                 cellSize = cellSize,
-                                placedTile = onGetTile(i, j)?.tile,
-                                onTilePlaced = { onSetTile(it, i, j) },
-                                onTileRemoved = { onRemoveTile(i, j) }
+                                onGetTile = onGetTile,
+                                onSetTile = onSetTile,
+                                onRemoveTile = onRemoveTile
                             )
                         }
                     }
@@ -73,18 +75,24 @@ private val HOVERED_BORDER_WIDTH = 2.dp
 
 @Composable
 private fun GridCell(
+    row: Int,
+    column: Int,
     cellType: CellType,
     cellSize: Dp,
-    placedTile: Tile?,
-    onTilePlaced: (Tile) -> Unit,
-    onTileRemoved: (Tile) -> Unit,
+    onGetTile: (row: Int, column: Int) -> PlacedTile?,
+    onSetTile: (tile: Tile, row: Int, column: Int) -> Unit,
+    onRemoveTile: (row: Int, column: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     withDragContext(LocalTileDragContext.current) {
         DropTarget(
-            onDragTargetAdded = onTilePlaced,
-            onDragTargetRemoved = onTileRemoved
+            onDragTargetAdded = { onSetTile(it, row, column) },
+            onDragTargetRemoved = { onRemoveTile(row, column) }
         ) { isHovered ->
+            // Important: Observe the tile state here and not in `GridSection` in order to avoid
+            // recomposing the entire grid whenever the state of a single tile is updated (i.e.
+            // looping through every cell just to recompose the one cell whose data changed)
+            val placedTile = onGetTile(row, column)?.tile
             if (placedTile == null) {
                 EmptyCell(cellType, cellSize, isHovered)
             } else {
