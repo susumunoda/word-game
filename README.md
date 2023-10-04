@@ -14,4 +14,4 @@ Note: It is specifically not a goal to publish this app for obvious copyright re
 - [X] Implement shuffle and manual rearranging of player's tiles
 - [ ] Validate played tiles and compute score
 - [ ] Implement resign/skip/swap
-- [ ] Display game summary after game finish
+- [ ] Display summary after game end
