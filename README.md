@@ -15,3 +15,8 @@ Note: It is specifically not a goal to publish this app for obvious copyright re
 - [ ] Validate played tiles and compute score
 - [ ] Implement resign/skip/swap
 - [ ] Display summary after game end
+
+# Demos
+https://github.com/susumunoda/word-game/assets/5313576/179cb508-f005-4fc6-86c1-459dcf2cfacb
+
+https://github.com/susumunoda/word-game/assets/5313576/d27d44d1-5fc4-422e-8e6a-f24302d437dd
