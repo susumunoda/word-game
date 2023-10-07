@@ -28,6 +28,7 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation("co.touchlab:kermit:2.0.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("com.susumunoda.compose:compose-gestures:1.0")
             }
         }
         val androidMain by getting {

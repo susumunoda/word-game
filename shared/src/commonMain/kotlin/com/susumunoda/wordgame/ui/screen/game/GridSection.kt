@@ -25,10 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.susumunoda.compose.gestures.withDragContext
 import com.susumunoda.wordgame.CellType
 import com.susumunoda.wordgame.GRID
 import com.susumunoda.wordgame.Tile
-import com.susumunoda.wordgame.ui.component.withDragContext
 
 private val TILE_SPACING = 2.dp
 

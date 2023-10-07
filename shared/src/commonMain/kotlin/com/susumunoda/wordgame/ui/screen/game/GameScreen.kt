@@ -10,10 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.susumunoda.compose.gestures.DragContext
 import com.susumunoda.wordgame.Tile
 import com.susumunoda.wordgame.WordGameState
 import com.susumunoda.wordgame.WordGameViewModel
-import com.susumunoda.wordgame.ui.component.DragContext
 
 private val HORIZONTAL_PADDING = PaddingValues(horizontal = 16.dp)
 

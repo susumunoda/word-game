@@ -33,11 +33,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.susumunoda.compose.gestures.DragOptions
+import com.susumunoda.compose.gestures.DragStatus
+import com.susumunoda.compose.gestures.SnapPosition
+import com.susumunoda.compose.gestures.withDragContext
 import com.susumunoda.wordgame.Tile
-import com.susumunoda.wordgame.ui.component.DragOptions
-import com.susumunoda.wordgame.ui.component.DragStatus
-import com.susumunoda.wordgame.ui.component.SnapPosition
-import com.susumunoda.wordgame.ui.component.withDragContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.roundToInt
